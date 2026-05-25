@@ -1,8 +1,12 @@
-"""FastAPI entry point — Step 0: health check only."""
+"""FastAPI entry point."""
 
 from fastapi import FastAPI
 
-app = FastAPI(title="Salary Management System", version="0.0.0-step0")
+from app.routers import employees
+
+app = FastAPI(title="Salary Management System", version="0.0.0-step2")
+
+app.include_router(employees.router, prefix="/employees", tags=["employees"])
 
 
 @app.get("/health")

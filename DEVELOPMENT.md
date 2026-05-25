@@ -20,8 +20,8 @@ We build on branch **`development`** one step at a time.
 | Step | Scope | Status |
 |------|--------|--------|
 | **0** | Environment: venv, deps, health API, smoke test | **Done** |
-| **1** | Database + `Employee` model | **Done — review** |
-| 2 | Create employee (TDD) | Pending |
+| **1** | Database + `Employee` model | **Done** |
+| **2** | Create employee (TDD) | **Done — review** |
 | 3 | Get employee by id (TDD) | Pending |
 | 4 | List employees (TDD) | Pending |
 | 5 | Filters + pagination (TDD) | Pending |
@@ -93,9 +93,38 @@ Expected: **3 tests** (2 database + 1 health).
 
 ---
 
+## Step 2 — Create employee (TDD)
+
+**Goal:** `POST /employees` with validation (`salary > 0`, `Country` enum).
+
+**New files:**
+
+```
+app/schemas/employee.py
+app/repositories/employee.py   (create only)
+app/services/employee.py     (create only)
+app/routers/employees.py     (POST only)
+tests/test_create_employee.py
+```
+
+**Run:**
+
+```powershell
+pytest -v
+uvicorn app.main:app --reload
+# POST http://127.0.0.1:8000/employees  (see /docs)
+```
+
+Expected: **5 tests** pass.
+
+**When satisfied, reply:** `Step 2 approved` — then Step 3 (get by id).
+
+---
+
 ## Approval log
 
 | Step | Approved by you | Commit |
 |------|-----------------|--------|
 | 0 | Yes | `955a0e9` |
-| 1 | _waiting for your OK_ | _this commit_ |
+| 1 | Yes | `81dae7c` |
+| 2 | _waiting for your OK_ | _this commit_ |
