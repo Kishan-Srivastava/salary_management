@@ -72,4 +72,4 @@ Open http://127.0.0.1:8000/health → `{"status":"ok"}`
 
 | Step | Approved by you | Commit |
 |------|-----------------|--------|
-| 0 | _pending_ | _pending_ |
+| 0 | _waiting for your OK_ | `955a0e9` |
