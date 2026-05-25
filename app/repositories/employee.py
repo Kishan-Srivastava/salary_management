@@ -1,6 +1,7 @@
 """Employee repository."""
 
 import uuid
+from typing import Any
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -102,4 +103,8 @@ class EmployeeRepository:
 
     def delete(self, employee: Employee) -> None:
         self.db.delete(employee)
+        self.db.commit()
+
+    def bulk_insert(self, rows: list[dict[str, Any]]) -> None:
+        self.db.bulk_insert_mappings(Employee, rows)
         self.db.commit()

@@ -28,8 +28,8 @@ We build on branch **`development`** one step at a time.
 | **6** | Update / delete (TDD) | **Done** |
 | **7** | Country salary insights (TDD) | **Done** |
 | **8** | Job-title insights + charts (TDD) | **Done** |
-| **9** | Seed script (small batch first) | **Done — review** |
-| 10 | Bulk seed (10k) | Pending |
+| **9** | Seed script (small batch first) | **Done** |
+| **10** | Bulk seed (10k) | **Done — review** |
 | 11 | Streamlit UI (one panel at a time) | Pending |
 | 12 | Docker + final README | Pending |
 
@@ -175,7 +175,8 @@ Expected: **5 tests** pass.
 | 6 | Yes | `3a856f3` |
 | 7 | Yes | `87c096a` |
 | 8 | Yes | `3410041` |
-| 9 | _waiting for your OK_ | _this commit_ |
+| 9 | Yes | `0ca4bd6` |
+| 10 | _waiting for your OK_ | _this commit_ |
 
 ---
 
@@ -193,6 +194,25 @@ python -m scripts.seed --count 50
 **Tests:** `pytest tests/test_seed.py -v`
 
 **When satisfied, reply:** `Step 9 approved` — then Step 10 (bulk insert optimization for 10k).
+
+---
+
+## Step 10 — Bulk seed (10k)
+
+**Goal:** Seed 10,000 employees fast using `bulk_insert_mappings` in batches of 1,000.
+
+**Run:**
+
+```powershell
+$env:PYTHONPATH="."
+python -m scripts.seed --count 10000
+```
+
+Optional fresh DB: delete `salary.db` first, then seed.
+
+**Tests:** `pytest tests/test_seed.py -v` (includes 1100-row batch test).
+
+**When satisfied, reply:** `Step 10 approved` — then Step 11 (Streamlit UI).
 
 ---
 

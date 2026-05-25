@@ -2,7 +2,7 @@
 
 Built incrementally on branch **`development`** — one small step at a time with TDD.
 
-## Current step: 9 — Seed script
+## Current step: 10 — Bulk seed (10k)
 
 See **[DEVELOPMENT.md](DEVELOPMENT.md)** for the full roadmap and approval process.
 
@@ -18,11 +18,11 @@ uvicorn app.main:app --reload
 ```
 
 - Health: http://127.0.0.1:8000/health  
-- **28 tests** should pass
-- Seed data: `python -m scripts.seed --count 50`
+- **29 tests** should pass
+- Seed 10k: `python -m scripts.seed --count 10000` (bulk batches of 1000)
 - Restart API: `uvicorn app.main:app --reload --port 8001`
 
-When Step 9 looks good, say **“Step 9 approved”** to begin Step 10 (bulk 10k seed).
+When Step 10 looks good, say **“Step 10 approved”** to begin Step 11 (Streamlit UI).
 
 ### Branches
 
