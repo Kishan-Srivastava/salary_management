@@ -26,8 +26,8 @@ We build on branch **`development`** one step at a time.
 | **4** | List employees (TDD) | **Done** |
 | **5** | Filters + pagination (TDD) | **Done** |
 | **6** | Update / delete (TDD) | **Done** |
-| **7** | Country salary insights (TDD) | **Done — review** |
-| 8 | Job-title insights + extra charts (TDD) | Pending |
+| **7** | Country salary insights (TDD) | **Done** |
+| **8** | Job-title insights + charts (TDD) | **Done — review** |
 | 9 | Seed script (small batch first) | Pending |
 | 10 | Bulk seed (10k) | Pending |
 | 11 | Streamlit UI (one panel at a time) | Pending |
@@ -173,7 +173,8 @@ Expected: **5 tests** pass.
 | 4 | Yes | `904569a` |
 | 5 | Yes | `0627964` |
 | 6 | Yes | `3a856f3` |
-| 7 | _waiting for your OK_ | _this commit_ |
+| 7 | Yes | `87c096a` |
+| 8 | _waiting for your OK_ | _this commit_ |
 
 ---
 
@@ -188,3 +189,23 @@ Expected: **5 tests** pass.
 **Try:** `GET http://127.0.0.1:8001/insights/country`
 
 **When satisfied, reply:** `Step 7 approved` — then Step 8 (job-title insights + charts).
+
+---
+
+## Step 8 — Job-title insights + charts (TDD)
+
+**Goal:**
+
+- `GET /insights/job-title` — avg salary per job title per country
+- `GET /insights/distribution` — salary histogram (optional `country`)
+- `GET /insights/top-roles` — top N paying roles per country
+
+**Run:** `pytest -v` → **26 tests** pass.
+
+**Try on port 8001:**
+
+- `/insights/job-title`
+- `/insights/distribution?country=US`
+- `/insights/top-roles?limit=5`
+
+**When satisfied, reply:** `Step 8 approved` — then Step 9 (seed script).
