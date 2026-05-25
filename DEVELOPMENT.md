@@ -24,8 +24,8 @@ We build on branch **`development`** one step at a time.
 | **2** | Create employee (TDD) | **Done** |
 | **3** | Get employee by id (TDD) | **Done** |
 | **4** | List employees (TDD) | **Done** |
-| **5** | Filters + pagination (TDD) | **Done — review** |
-| 6 | Update / delete (TDD) | Pending |
+| **5** | Filters + pagination (TDD) | **Done** |
+| **6** | Update / delete (TDD) | **Done — review** |
 | 7 | Country salary insights (TDD) | Pending |
 | 8 | Job-title insights + extra charts (TDD) | Pending |
 | 9 | Seed script (small batch first) | Pending |
@@ -145,6 +145,23 @@ Expected: **5 tests** pass.
 
 ---
 
+## Step 6 — Update & delete (TDD)
+
+**Goal:** `PUT /employees/{id}` (partial update) and `DELETE /employees/{id}` (204).
+
+**New:** `tests/test_update_delete_employee.py`, `EmployeeUpdate` schema.
+
+**Run:** `pytest -v` → **18 tests** pass.
+
+**Try on port 8001:**
+
+- `PUT /employees/{id}` with `{"salary": 95000}`
+- `DELETE /employees/{id}` → then GET returns 404
+
+**When satisfied, reply:** `Step 6 approved` — then Step 7 (country insights).
+
+---
+
 ## Approval log
 
 | Step | Approved by you | Commit |
@@ -153,4 +170,6 @@ Expected: **5 tests** pass.
 | 1 | Yes | `81dae7c` |
 | 2 | Yes | `a2a657d` |
 | 3 | Yes | `fa9c216` |
-| 4 | _waiting for your OK_ | _this commit_ |
+| 4 | Yes | `904569a` |
+| 5 | Yes | `0627964` |
+| 6 | _waiting for your OK_ | _this commit_ |

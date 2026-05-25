@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app.repositories.employee import EmployeeRepository
-from app.schemas.employee import EmployeeCreate, EmployeeResponse
+from app.schemas.employee import EmployeeCreate, EmployeeResponse, EmployeeUpdate
 
 
 class EmployeeNotFoundError(Exception):
@@ -42,3 +42,16 @@ class EmployeeService:
             limit=page_size,
         )
         return [EmployeeResponse.model_validate(row) for row in rows], total
+
+    def update(self, employee_id: uuid.UUID, data: EmployeeUpdate) -> EmployeeResponse:
+        employee = self.repo.get_by_id(employee_id)
+        if not employee:
+            raise EmployeeNotFoundError(f"Employee {employee_id} not found")
+        updated = self.repo.update(employee, data)
+        return EmployeeResponse.model_validate(updated)
+
+    def delete(self, employee_id: uuid.UUID) -> None:
+        employee = self.repo.get_by_id(employee_id)
+        if not employee:
+            raise EmployeeNotFoundError(f"Employee {employee_id} not found")
+        self.repo.delete(employee)

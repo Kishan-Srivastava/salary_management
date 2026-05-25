@@ -2,7 +2,7 @@
 
 Built incrementally on branch **`development`** — one small step at a time with TDD.
 
-## Current step: 5 — Filters + pagination
+## Current step: 6 — Update & delete
 
 See **[DEVELOPMENT.md](DEVELOPMENT.md)** for the full roadmap and approval process.
 
@@ -18,11 +18,11 @@ uvicorn app.main:app --reload
 ```
 
 - Health: http://127.0.0.1:8000/health  
-- **13 tests** should pass
-- `GET /employees?job_title=finance` — partial, case-insensitive job title search
-- `GET /employees?country=US&page=1&page_size=25` — country filter + pagination
+- **18 tests** should pass
+- Full CRUD: `POST`, `GET`, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`
+- Restart API after pull: `uvicorn app.main:app --reload --port 8001`
 
-When Step 5 looks good, say **“Step 5 approved”** to begin Step 6 (update / delete).
+When Step 6 looks good, say **“Step 6 approved”** to begin Step 7 (salary insights).
 
 ### Branches
 

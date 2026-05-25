@@ -6,7 +6,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.employee import Employee
-from app.schemas.employee import EmployeeCreate
+from app.schemas.employee import EmployeeCreate, EmployeeUpdate
 
 
 def _job_title_filter(term: str):
@@ -80,3 +80,17 @@ class EmployeeRepository:
         self.db.commit()
         self.db.refresh(employee)
         return employee
+
+    def update(self, employee: Employee, data: EmployeeUpdate) -> Employee:
+        updates = data.model_dump(exclude_unset=True)
+        if "country" in updates and updates["country"] is not None:
+            updates["country"] = updates["country"].value
+        for field, value in updates.items():
+            setattr(employee, field, value)
+        self.db.commit()
+        self.db.refresh(employee)
+        return employee
+
+    def delete(self, employee: Employee) -> None:
+        self.db.delete(employee)
+        self.db.commit()

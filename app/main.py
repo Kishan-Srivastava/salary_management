@@ -10,7 +10,7 @@ from app.routers import employees
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Salary Management System", version="0.0.0-step5")
+app = FastAPI(title="Salary Management System", version="0.0.0-step6")
 
 app.include_router(employees.router, prefix="/employees", tags=["employees"])
 
@@ -25,4 +25,4 @@ def on_startup() -> None:
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "version": "step5"}
+    return {"status": "ok", "version": "step6"}
