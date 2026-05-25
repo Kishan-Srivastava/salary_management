@@ -99,3 +99,29 @@ This file documents each commit in the TDD build order: **what changed**, **why*
 **Includes:** `Dockerfile`, `docker-compose.yml`, expanded `README.md`, `ResponseTimeLoggingMiddleware`.
 
 ---
+
+## Commit log (this branch)
+
+| Step | Commit | Message |
+|------|--------|---------|
+| — | `b1428f5` | Initial commit (README placeholder) |
+| 1 | `43a33f9` | init project structure |
+| 2 | `c63e9f7` | setup db + models |
+| 3 | `3c1bfa8` | add failing test for create employee |
+| 4 | `95cf138` | implement create employee |
+| 5 | `7be2c0b` | add read endpoints + tests |
+| 6 | `a553db4` | implement filters |
+| 7 | `3ee2753` | add aggregation tests |
+| 8 | `254e906` | implement salary insights |
+| 9 | `1864401` | add seed script |
+| 10 | `54859ea` | optimize bulk insert |
+| 11 | `adff972` | add streamlit UI |
+| 12 | `df2173f` | add docker + readme |
+
+Push to GitHub:
+
+```bash
+git push origin main
+```
+
+---
