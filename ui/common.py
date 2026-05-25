@@ -19,7 +19,7 @@ COUNTRIES = ["US", "UK", "DE", "IN", "CA", "AU", "FR", "JP", "SG", "BR"]
 
 
 def check_api_health() -> dict[str, str | bool]:
-    """Verify the API is reachable and supports emp_id (step11-emp-id)."""
+    """Verify the API is reachable and returns app v1.0.0 under /api/v1."""
     try:
         response = requests.get(f"{API_BASE}/health", timeout=5)
         response.raise_for_status()

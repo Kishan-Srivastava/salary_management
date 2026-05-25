@@ -2,7 +2,7 @@
 
 A full-stack HR salary management application for ~10,000 employees: **FastAPI** REST API (versioned), **SQLite** persistence, **Streamlit** dashboard, and **Docker** deployment.
 
-Built on branch **`development`** with incremental TDD. See [DEVELOPMENT.md](DEVELOPMENT.md) for the step-by-step build log.
+Repository: [github.com/Kishan-Srivastava/salary_management](https://github.com/Kishan-Srivastava/salary_management)
 
 ---
 
@@ -22,7 +22,7 @@ Built on branch **`development`** with incremental TDD. See [DEVELOPMENT.md](DEV
 | Panel | Purpose |
 |-------|---------|
 | **Home** | Hero landing, live metrics, feature cards, API status pill |
-| **Modify Employee** | Search table → select row → edit or delete; separate create flow |
+| **Modify Employee** | Search table → select row → edit or delete; **Clear selection**; separate create flow |
 | **API Status** | Connection test, friendly errors, recent issue log |
 | **Salary Insights** | Country and job-title tables |
 | **Analytics Charts** | Distribution and top roles |
@@ -43,49 +43,41 @@ When you open the dashboard, the **Home** panel looks like this:
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  💼 Salary Management System                                            │
-│                                                                         │
-│  Your HR command center                                                 │
-│  Manage employees, explore salary insights, and visualize compensation  │
-│  data — all in one polished dashboard powered by FastAPI.               │
-│  (gradient hero: navy → blue → purple)                                  │
+│  Your HR command center (gradient hero: navy → blue → purple)           │
 └─────────────────────────────────────────────────────────────────────────┘
 
   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
   │  EMPLOYEES   │ │  API STATUS  │ │  INSIGHTS    │ │  DASHBOARD   │
-  │   10,000     │ │  Connected   │ │    Ready     │ │  4 panels    │
+  │   (live)     │ │  Connected   │ │    Ready     │ │  4 panels    │
   └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
 
   ● http://127.0.0.1:8001/api/v1
 
-  Explore the app — feature cards (2×2):
   ✏️ Modify Employee    🩺 API Status
   📊 Salary Insights    📈 Analytics Charts
 ```
 
-Capture your own screenshot after starting the UI: http://127.0.0.1:8501
+Open the UI: http://127.0.0.1:8501
 
 ---
 
-## API versioning (critical)
+## API versioning
 
-All business endpoints live under **`/api/v1`**. This keeps future **v2** changes backward-compatible.
+All business endpoints are under **`/api/v1`** so future **v2** changes stay backward-compatible.
 
 | Type | Path | Description |
 |------|------|-------------|
-| Liveness | `GET /health` | Docker/load-balancer probe (no version body) |
-| Versioned health | `GET /api/v1/health` | `{ "status", "app_version": "1.0.0", "api_version": "v1" }` |
-| Employees | `/api/v1/employees` | CRUD + list filters + `/by-emp-id/{id}` |
+| Liveness | `GET /health` | Docker/load-balancer probe |
+| Versioned health | `GET /api/v1/health` | `app_version` **1.0.0**, `api_version` **v1** |
+| Employees | `/api/v1/employees` | CRUD, filters, `/by-emp-id/{id}` |
 | Insights | `/api/v1/insights/*` | Country, job-title, distribution, top-roles |
 
-**OpenAPI docs:** http://127.0.0.1:8001/docs (shows **v1.0.0**)
-
-### Example requests
+**Swagger UI:** http://127.0.0.1:8001/docs
 
 ```http
 GET  /api/v1/health
 GET  /api/v1/employees?full_name=kish&page=1&page_size=25
 POST /api/v1/employees
-GET  /api/v1/employees/by-emp-id/42
 PUT  /api/v1/employees/by-emp-id/42
 GET  /api/v1/insights/country
 ```
@@ -97,24 +89,20 @@ GET  /api/v1/insights/country
 ### Prerequisites
 
 - Python 3.12+
-- PowerShell (Windows) or bash
+- Git
 
-### 1. Install
+### 1. Clone and install
 
 ```powershell
+git clone git@github.com:Kishan-Srivastava/salary_management.git
 cd salary_management
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-Copy environment file (optional):
-
-```powershell
 copy .env.example .env
 ```
 
-`API_BASE_URL` is the **server root** (`http://127.0.0.1:8001`). The UI appends `/api/v1` automatically.
+`API_BASE_URL` in `.env` is the **server root** (`http://127.0.0.1:8001`). The UI appends `/api/v1` to API paths.
 
 ### 2. Run API
 
@@ -125,8 +113,8 @@ $env:PYTHONPATH="."
 
 Verify:
 
-- Liveness: http://127.0.0.1:8001/health  
-- Versioned: http://127.0.0.1:8001/api/v1/health → `"app_version": "1.0.0"`
+- http://127.0.0.1:8001/health  
+- http://127.0.0.1:8001/api/v1/health → `"app_version": "1.0.0"`
 
 ### 3. Seed data (optional)
 
@@ -145,14 +133,13 @@ Open http://127.0.0.1:8501 — sidebar should show **API OK (1.0.0 (v1))**.
 ### 5. Tests
 
 ```powershell
+$env:PYTHONPATH="."
 pytest -v
 ```
 
 ---
 
 ## Docker
-
-Run API + UI together:
 
 ```powershell
 docker compose up --build
@@ -164,14 +151,7 @@ docker compose up --build
 | UI | http://127.0.0.1:8501 |
 | Swagger | http://127.0.0.1:8001/docs |
 
-SQLite data is stored in a Docker volume (`salary_data`).
-
-API only:
-
-```powershell
-docker build -t salary-api .
-docker run -p 8001:8000 salary-api
-```
+SQLite data persists in Docker volume `salary_data`.
 
 ---
 
@@ -180,7 +160,7 @@ docker run -p 8001:8000 salary-api
 ```
 salary_management/
 ├── app/
-│   ├── api/v1/          # Versioned route aggregation
+│   ├── api/v1/          # Versioned API (v1.0.0)
 │   ├── core/            # config, database, version
 │   ├── models/
 │   ├── repositories/
@@ -191,19 +171,22 @@ salary_management/
 ├── views/               # Streamlit pages
 ├── tests/
 ├── scripts/             # seed, run_api.ps1, run_ui.ps1
-├── Dockerfile           # API image
-├── Dockerfile.ui        # Streamlit image
-└── docker-compose.yml
+├── Dockerfile
+├── Dockerfile.ui
+├── docker-compose.yml
+├── README.md
+├── COMMITS.md           # Full commit-by-commit changelog
+└── DEVELOPMENT.md       # Incremental build log
 ```
 
 ---
 
-## Branches
+## Documentation
 
-| Branch | Purpose |
-|--------|---------|
-| `main` | Earlier full build |
-| `development` | Incremental rebuild (current) |
+| File | Description |
+|------|-------------|
+| [COMMITS.md](COMMITS.md) | Every commit on `development` → `main`: what changed and why |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Step-by-step TDD build plan |
 
 ---
 

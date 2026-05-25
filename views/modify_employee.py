@@ -161,26 +161,36 @@ if results is not None:
                 row = parse_employee(items[row_index])
                 st.session_state.selected_employee = row
                 st.session_state.selection_from_search = True
-                st.info(f"Selected employee **#{row['emp_id']}** — {row['full_name']}")
-            elif st.session_state.selection_from_search and st.session_state.selected_employee:
-                emp = st.session_state.selected_employee
-                st.caption(f"Current selection: #{emp.get('emp_id')} — {emp.get('full_name')}")
 
-            if st.session_state.selection_from_search:
-                if st.button("Clear selection", key="clear_from_table"):
-                    _clear_selection()
-                    st.rerun()
         except ValueError as exc:
             record_api_error(context="Search results", exc=exc)
             show_api_error(exc, "Search results")
 
-if results is not None and not st.session_state.selection_from_search:
+if results is not None and not st.session_state.get("selected_employee"):
     st.caption("Select a row in the table above to edit or delete an employee.")
+
+if results is not None and st.session_state.get("selected_employee"):
+    emp = st.session_state.selected_employee
+    sel_col, clear_col = st.columns([4, 1])
+    with sel_col:
+        st.info(
+            f"**Selected:** #{emp.get('emp_id')} — {emp.get('full_name')} "
+            f"({emp.get('job_title')}, {emp.get('country')})"
+        )
+    with clear_col:
+        if st.button(
+            "Clear selection",
+            key="clear_selection_main",
+            type="secondary",
+            use_container_width=True,
+        ):
+            _clear_selection()
+            st.rerun()
 
 st.divider()
 
 selected = None
-if st.session_state.selection_from_search and st.session_state.search_results is not None:
+if st.session_state.search_results is not None and st.session_state.selected_employee:
     selected = st.session_state.selected_employee
     if selected:
         try:
@@ -192,7 +202,28 @@ if st.session_state.selection_from_search and st.session_state.search_results is
             selected = None
 
 if selected:
-    st.subheader(f"Editing employee #{selected['emp_id']}")
+    st.subheader("Modify employee")
+    st.caption(f"Editing employee #{selected['emp_id']}")
+
+    act_clear, act_delete, _ = st.columns([1, 1, 2])
+    with act_clear:
+        if st.button(
+            "Clear selection",
+            key="clear_modify_section",
+            type="secondary",
+            use_container_width=True,
+        ):
+            _clear_selection()
+            st.rerun()
+    with act_delete:
+        if st.button(
+            "Delete employee",
+            key="delete_modify_section",
+            type="primary",
+            use_container_width=True,
+        ):
+            st.session_state.confirm_delete = selected["emp_id"]
+
     st.dataframe(
         pd.DataFrame(
             [
@@ -261,15 +292,6 @@ if selected:
                         show_api_error(http_exc, "Update employee", response=resp)
             except requests.RequestException as exc:
                 show_api_error(exc, "Update employee")
-
-    col_clear, col_del = st.columns(2)
-    with col_clear:
-        if st.button("Clear selection", key="clear_from_edit"):
-            _clear_selection()
-            st.rerun()
-    with col_del:
-        if st.button("Delete employee", type="primary"):
-            st.session_state.confirm_delete = selected["emp_id"]
 
     if st.session_state.get("confirm_delete") == selected["emp_id"]:
         st.warning(f"Delete #{selected['emp_id']} — {selected['full_name']}?")

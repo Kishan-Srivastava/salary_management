@@ -8,7 +8,8 @@ from typing import Any
 import requests
 import streamlit as st
 
-from ui.common import API_BASE, EXPECTED_API_VERSION, check_api_health
+from app.core.version import API_VERSION
+from ui.common import API_BASE, EXPECTED_APP_VERSION, check_api_health
 
 SESSION_KEY = "api_error_log"
 
@@ -147,7 +148,7 @@ def render_api_status_page() -> None:
     with c1:
         st.metric("API address", API_BASE)
     with c2:
-        st.metric("Expected version", EXPECTED_API_VERSION)
+        st.metric("Expected app version", f"{EXPECTED_APP_VERSION} ({API_VERSION})")
 
     if health["ok"]:
         st.success(f"Connected — API is healthy ({health['version']}).")
