@@ -61,7 +61,30 @@ def test_delete_employee(client) -> None:
     assert client.get(f"/employees/{created['id']}").status_code == 404
 
 
+def test_list_employees_with_filters_and_pagination(client) -> None:
+    client.post("/employees", json=_employee_payload(country="US", job_title="Engineer"))
+    client.post("/employees", json=_employee_payload(country="UK", job_title="Analyst"))
+    client.post("/employees", json=_employee_payload(country="US", job_title="Analyst"))
+
+    all_resp = client.get("/employees")
+    assert all_resp.status_code == 200
+    assert all_resp.json()["total"] == 3
+
+    us_resp = client.get("/employees", params={"country": "US"})
+    assert us_resp.json()["total"] == 2
+
+    filtered = client.get(
+        "/employees",
+        params={"country": "US", "job_title": "Analyst", "page": 1, "page_size": 10},
+    )
+    assert filtered.json()["total"] == 1
+    assert filtered.json()["items"][0]["job_title"] == "Analyst"
+
+
 def test_list_employees_empty(client) -> None:
     response = client.get("/employees")
     assert response.status_code == 200
-    assert response.json() == []
+    body = response.json()
+    assert body["items"] == []
+    assert body["total"] == 0
+    assert body["pages"] == 0

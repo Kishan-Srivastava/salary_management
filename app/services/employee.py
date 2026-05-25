@@ -26,9 +26,22 @@ class EmployeeService:
             raise EmployeeNotFoundError(f"Employee {employee_id} not found")
         return EmployeeResponse.model_validate(employee)
 
-    def list_all(self) -> list[EmployeeResponse]:
-        rows = self.repo.list_all()
-        return [EmployeeResponse.model_validate(row) for row in rows]
+    def list(
+        self,
+        *,
+        country: str | None = None,
+        job_title: str | None = None,
+        page: int = 1,
+        page_size: int = 50,
+    ) -> tuple[list[EmployeeResponse], int]:
+        offset = max(page - 1, 0) * page_size
+        rows, total = self.repo.list_employees(
+            country=country,
+            job_title=job_title,
+            offset=offset,
+            limit=page_size,
+        )
+        return [EmployeeResponse.model_validate(row) for row in rows], total
 
     def update(self, employee_id: uuid.UUID, data: EmployeeUpdate) -> EmployeeResponse:
         employee = self.repo.get_by_id(employee_id)
