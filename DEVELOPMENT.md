@@ -30,8 +30,11 @@ We build on branch **`development`** one step at a time.
 | **8** | Job-title insights + charts (TDD) | **Done** |
 | **9** | Seed script (small batch first) | **Done** |
 | **10** | Bulk seed (10k) | **Done** |
-| **11** | Streamlit UI (4 sidebar panels) | **Done — review** |
-| 12 | Docker + final README | Pending |
+| **11** | Streamlit UI (4 sidebar panels) | **Done** |
+| **12–16** | emp_id, Modify Employee, API Status, theme, home | **Done** |
+| **17** | API versioning `/api/v1`, app v1.0.0 | **Done** |
+| **18** | Docker + docker-compose | **Done** |
+| **19** | README v1.0.0 (features + home snapshot) | **Done** |
 
 ---
 
