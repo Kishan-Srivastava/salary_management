@@ -4,7 +4,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from ui.common import api_request, page_header, show_api_error
+from ui.common import api_request, page_header
+from ui.errors import show_api_error
 
 page_header("Salary Insights", "Country and job-title statistics.")
 
