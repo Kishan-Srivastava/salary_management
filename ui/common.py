@@ -63,6 +63,44 @@ DISPLAY_SWAGGER_URL = f"{PUBLIC_API_ROOT}/docs"
 
 COUNTRIES = ["US", "UK", "DE", "IN", "CA", "AU", "FR", "JP", "SG", "BR"]
 
+COUNTRY_CURRENCY: dict[str, str] = {
+    "US": "USD",
+    "UK": "GBP",
+    "DE": "EUR",
+    "IN": "INR",
+    "CA": "CAD",
+    "AU": "AUD",
+    "FR": "EUR",
+    "JP": "JPY",
+    "SG": "SGD",
+    "BR": "BRL",
+}
+
+CURRENCIES = sorted(set(COUNTRY_CURRENCY.values()))
+
+
+def default_currency_for_country(country: str) -> str:
+    return COUNTRY_CURRENCY.get(country, "USD")
+
+
+def currency_selectbox(
+    label: str,
+    *,
+    value: str,
+    key: str | None = None,
+) -> str:
+    """ISO 4217 code picker (same pattern as country selectbox)."""
+    current = (value or "USD").upper()
+    options = list(CURRENCIES)
+    if current not in options:
+        options = [current] + options
+    return st.selectbox(
+        label,
+        options,
+        index=options.index(current),
+        key=key,
+    )
+
 
 def check_api_health() -> dict[str, str | bool]:
     """Verify the API is reachable and returns app v1.0.0 under /api/v1."""

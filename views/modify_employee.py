@@ -9,6 +9,8 @@ import streamlit as st
 from ui.common import (
     COUNTRIES,
     api_request,
+    currency_selectbox,
+    default_currency_for_country,
     fetch_employees,
     page_header,
     parse_employee,
@@ -258,7 +260,7 @@ if selected:
             value=float(selected["salary"]),
             step=1000.0,
         )
-        currency = st.text_input("Currency", value=selected["currency"]).upper()
+        currency = currency_selectbox("Currency", value=selected["currency"])
         save_changes = st.form_submit_button("Save changes", type="primary")
 
     if save_changes:
@@ -333,7 +335,11 @@ with st.form("create_form", clear_on_submit=False):
     new_job = st.text_input("Job title", key="new_job")
     new_country = st.selectbox("Country", COUNTRIES, key="new_country")
     new_salary = st.number_input("Salary", min_value=0.01, value=75000.0, step=1000.0, key="new_salary")
-    new_currency = st.text_input("Currency", value="USD", key="new_currency").upper()
+    new_currency = currency_selectbox(
+        "Currency",
+        value=default_currency_for_country(new_country),
+        key="new_currency",
+    )
     create_submitted = st.form_submit_button("Create employee", type="primary")
 
 if create_submitted:
