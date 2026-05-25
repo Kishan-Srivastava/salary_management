@@ -174,7 +174,25 @@ Expected: **5 tests** pass.
 | 5 | Yes | `0627964` |
 | 6 | Yes | `3a856f3` |
 | 7 | Yes | `87c096a` |
-| 8 | _waiting for your OK_ | _this commit_ |
+| 8 | Yes | `3410041` |
+| 9 | _waiting for your OK_ | _this commit_ |
+
+---
+
+## Step 9 — Seed script (small batch)
+
+**Goal:** Generate realistic employees from name files using `add_all` (simple, reviewable).
+
+**Run:**
+
+```powershell
+$env:PYTHONPATH="."
+python -m scripts.seed --count 50
+```
+
+**Tests:** `pytest tests/test_seed.py -v`
+
+**When satisfied, reply:** `Step 9 approved` — then Step 10 (bulk insert optimization for 10k).
 
 ---
 

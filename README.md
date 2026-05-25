@@ -2,7 +2,7 @@
 
 Built incrementally on branch **`development`** — one small step at a time with TDD.
 
-## Current step: 8 — Job-title insights & charts
+## Current step: 9 — Seed script
 
 See **[DEVELOPMENT.md](DEVELOPMENT.md)** for the full roadmap and approval process.
 
@@ -18,11 +18,11 @@ uvicorn app.main:app --reload
 ```
 
 - Health: http://127.0.0.1:8000/health  
-- **26 tests** should pass
-- `GET /insights/country` | `/job-title` | `/distribution` | `/top-roles`
+- **28 tests** should pass
+- Seed data: `python -m scripts.seed --count 50`
 - Restart API: `uvicorn app.main:app --reload --port 8001`
 
-When Step 8 looks good, say **“Step 8 approved”** to begin Step 9 (seed script).
+When Step 9 looks good, say **“Step 9 approved”** to begin Step 10 (bulk 10k seed).
 
 ### Branches
 
