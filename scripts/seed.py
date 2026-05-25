@@ -1,4 +1,4 @@
-"""Seed database with synthetic employees."""
+"""Seed database with 10,000 synthetic employees (bulk insert)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal, init_db
-from app.models.employee import Employee
+from app.repositories.employee import EmployeeRepository
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -79,6 +79,8 @@ COUNTRY_MULTIPLIER = {
     "BR": 0.45,
 }
 
+BATCH_SIZE = 1000
+
 
 def load_names(filename: str) -> list[str]:
     path = DATA_DIR / filename
@@ -86,11 +88,11 @@ def load_names(filename: str) -> list[str]:
         return [line.strip() for line in handle if line.strip()]
 
 
-def build_employee_rows(count: int) -> list[Employee]:
+def build_employee_rows(count: int) -> list[dict]:
     first_names = load_names("first_names.txt")
     last_names = load_names("last_names.txt")
     now = datetime.now(timezone.utc)
-    employees: list[Employee] = []
+    rows: list[dict] = []
 
     for _ in range(count):
         job_title = random.choice(JOB_TITLES)
@@ -98,25 +100,26 @@ def build_employee_rows(count: int) -> list[Employee]:
         low, high = SALARY_RANGES[job_title]
         multiplier = COUNTRY_MULTIPLIER[country]
         salary = round(random.uniform(low, high) * multiplier, 2)
-        employees.append(
-            Employee(
-                id=uuid.uuid4(),
-                full_name=f"{random.choice(first_names)} {random.choice(last_names)}",
-                job_title=job_title,
-                country=country,
-                salary=salary,
-                currency=COUNTRY_CURRENCY[country],
-                created_at=now,
-                updated_at=now,
-            )
+        rows.append(
+            {
+                "id": uuid.uuid4(),
+                "full_name": f"{random.choice(first_names)} {random.choice(last_names)}",
+                "job_title": job_title,
+                "country": country,
+                "salary": salary,
+                "currency": COUNTRY_CURRENCY[country],
+                "created_at": now,
+                "updated_at": now,
+            }
         )
-    return employees
+    return rows
 
 
 def seed(db: Session, count: int) -> None:
-    employees = build_employee_rows(count)
-    db.add_all(employees)
-    db.commit()
+    repo = EmployeeRepository(db)
+    rows = build_employee_rows(count)
+    for start in range(0, len(rows), BATCH_SIZE):
+        repo.bulk_insert(rows[start : start + BATCH_SIZE])
 
 
 def main() -> None:
