@@ -1,0 +1,7 @@
+[server]
+# Reload when view files change (helps on Windows)
+runOnSave = true
+fileWatcherType = "poll"
+
+[browser]
+gatherUsageStats = false
