@@ -16,6 +16,16 @@ def _create(client) -> dict:
     return response.json()
 
 
+def test_update_full_name(client) -> None:
+    created = _create(client)
+    response = client.put(
+        f"/employees/{created['id']}",
+        json={"full_name": "Janet Smith"},
+    )
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Janet Smith"
+
+
 def test_update_employee(client) -> None:
     created = _create(client)
     response = client.put(

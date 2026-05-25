@@ -31,6 +31,7 @@ class EmployeeService:
         *,
         country: str | None = None,
         job_title: str | None = None,
+        name: str | None = None,
         page: int = 1,
         page_size: int = 50,
     ) -> tuple[list[EmployeeResponse], int]:
@@ -38,6 +39,7 @@ class EmployeeService:
         rows, total = self.repo.list_employees(
             country=country,
             job_title=job_title,
+            name=name,
             offset=offset,
             limit=page_size,
         )

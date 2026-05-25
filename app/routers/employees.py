@@ -34,7 +34,11 @@ def list_employees(
     country: Country | None = None,
     job_title: str | None = Query(
         default=None,
-        description="Partial match (case-insensitive). E.g. 'finance' matches 'Financial Analyst' and 'Finance Manager'",
+        description="Partial match on job title (case-insensitive). E.g. 'finance' → 'Financial Analyst'",
+    ),
+    name: str | None = Query(
+        default=None,
+        description="Partial match on employee name (case-insensitive). E.g. 'john' → 'John Smith'",
     ),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
@@ -43,6 +47,7 @@ def list_employees(
     items, total = service.list(
         country=country.value if country else None,
         job_title=job_title,
+        name=name,
         page=page,
         page_size=page_size,
     )

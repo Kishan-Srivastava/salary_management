@@ -9,26 +9,28 @@ from app.models.employee import Employee
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
 
 
-def _job_title_filter(term: str):
+def _partial_text_filter(column, term: str):
     """
-    Case-insensitive partial search on job_title.
+    Case-insensitive partial search on a text column.
 
     Examples:
-      'finance' matches 'Financial Analyst', 'Finance Manager', 'Senior Finance Lead'
+      'finance' matches 'Financial Analyst'
+      'john' matches 'John Smith'
     """
     search = term.strip().lower()
     if not search:
         return None
 
-    column = func.lower(Employee.job_title)
+    lowered = func.lower(column)
     clauses = [
-        column.like(f"%{search}%"),
-        column.like(f"{search}%"),
+        lowered.like(f"%{search}%"),
+        lowered.like(f"{search}%"),
+        lowered.like(f"% {search}%"),
     ]
-    # 'finance' -> also match 'financ' root inside words (financial, finance)
     if len(search) >= 4:
         root = search[:-1]
-        clauses.append(column.like(f"%{root}%"))
+        clauses.append(lowered.like(f"%{root}%"))
+        clauses.append(lowered.like(f"% {root}%"))
 
     return or_(*clauses)
 
@@ -45,6 +47,7 @@ class EmployeeRepository:
         *,
         country: str | None = None,
         job_title: str | None = None,
+        name: str | None = None,
         offset: int = 0,
         limit: int = 50,
     ) -> tuple[list[Employee], int]:
@@ -56,10 +59,16 @@ class EmployeeRepository:
             count_stmt = count_stmt.where(Employee.country == country)
 
         if job_title:
-            title_filter = _job_title_filter(job_title)
+            title_filter = _partial_text_filter(Employee.job_title, job_title)
             if title_filter is not None:
                 stmt = stmt.where(title_filter)
                 count_stmt = count_stmt.where(title_filter)
+
+        if name:
+            name_filter = _partial_text_filter(Employee.full_name, name)
+            if name_filter is not None:
+                stmt = stmt.where(name_filter)
+                count_stmt = count_stmt.where(name_filter)
 
         total = self.db.scalar(count_stmt) or 0
         rows = self.db.scalars(
