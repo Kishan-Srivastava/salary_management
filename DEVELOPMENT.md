@@ -23,8 +23,8 @@ We build on branch **`development`** one step at a time.
 | **1** | Database + `Employee` model | **Done** |
 | **2** | Create employee (TDD) | **Done** |
 | **3** | Get employee by id (TDD) | **Done** |
-| **4** | List employees (TDD) | **Done — review** |
-| 5 | Filters + pagination (TDD) | Pending |
+| **4** | List employees (TDD) | **Done** |
+| **5** | Filters + pagination (TDD) | **Done — review** |
 | 6 | Update / delete (TDD) | Pending |
 | 7 | Country salary insights (TDD) | Pending |
 | 8 | Job-title insights + extra charts (TDD) | Pending |

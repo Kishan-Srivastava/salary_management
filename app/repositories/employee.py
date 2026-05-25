@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.employee import Employee
@@ -16,9 +16,31 @@ class EmployeeRepository:
     def get_by_id(self, employee_id: uuid.UUID) -> Employee | None:
         return self.db.get(Employee, employee_id)
 
-    def list_all(self) -> list[Employee]:
-        stmt = select(Employee).order_by(Employee.created_at.desc())
-        return list(self.db.scalars(stmt).all())
+    def list_employees(
+        self,
+        *,
+        country: str | None = None,
+        job_title: str | None = None,
+        offset: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[Employee], int]:
+        stmt = select(Employee)
+        count_stmt = select(func.count()).select_from(Employee)
+
+        if country:
+            stmt = stmt.where(Employee.country == country)
+            count_stmt = count_stmt.where(Employee.country == country)
+
+        if job_title:
+            pattern = f"%{job_title.strip()}%"
+            stmt = stmt.where(Employee.job_title.ilike(pattern))
+            count_stmt = count_stmt.where(Employee.job_title.ilike(pattern))
+
+        total = self.db.scalar(count_stmt) or 0
+        rows = self.db.scalars(
+            stmt.order_by(Employee.created_at.desc()).offset(offset).limit(limit)
+        ).all()
+        return list(rows), total
 
     def create(self, data: EmployeeCreate) -> Employee:
         employee = Employee(
