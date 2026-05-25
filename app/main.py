@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from app.routers import employees
 
-app = FastAPI(title="Salary Management System", version="0.0.0-step3")
+app = FastAPI(title="Salary Management System", version="0.0.0-step4")
 
 app.include_router(employees.router, prefix="/employees", tags=["employees"])
 

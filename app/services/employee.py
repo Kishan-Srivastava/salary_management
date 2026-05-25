@@ -25,3 +25,7 @@ class EmployeeService:
         if not employee:
             raise EmployeeNotFoundError(f"Employee {employee_id} not found")
         return EmployeeResponse.model_validate(employee)
+
+    def list_all(self) -> list[EmployeeResponse]:
+        rows = self.repo.list_all()
+        return [EmployeeResponse.model_validate(row) for row in rows]

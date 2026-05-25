@@ -24,6 +24,13 @@ def create_employee(
     return service.create(payload)
 
 
+@router.get("", response_model=list[EmployeeResponse])
+def list_employees(
+    service: EmployeeService = Depends(get_employee_service),
+) -> list[EmployeeResponse]:
+    return service.list_all()
+
+
 @router.get("/{employee_id}", response_model=EmployeeResponse)
 def get_employee(
     employee_id: uuid.UUID,

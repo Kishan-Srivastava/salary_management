@@ -22,8 +22,8 @@ We build on branch **`development`** one step at a time.
 | **0** | Environment: venv, deps, health API, smoke test | **Done** |
 | **1** | Database + `Employee` model | **Done** |
 | **2** | Create employee (TDD) | **Done** |
-| **3** | Get employee by id (TDD) | **Done — review** |
-| 4 | List employees (TDD) | Pending |
+| **3** | Get employee by id (TDD) | **Done** |
+| **4** | List employees (TDD) | **Done — review** |
 | 5 | Filters + pagination (TDD) | Pending |
 | 6 | Update / delete (TDD) | Pending |
 | 7 | Country salary insights (TDD) | Pending |
@@ -133,6 +133,18 @@ Expected: **5 tests** pass.
 
 ---
 
+## Step 4 — List employees (TDD)
+
+**Goal:** `GET /employees` returns all employees (newest first). No filters yet.
+
+**New:** `tests/test_list_employees.py` + `list_all()` in repo & service.
+
+**Run:** `pytest -v` → **9 tests** pass.
+
+**When satisfied, reply:** `Step 4 approved` — then Step 5 (filters + pagination).
+
+---
+
 ## Approval log
 
 | Step | Approved by you | Commit |
@@ -140,4 +152,5 @@ Expected: **5 tests** pass.
 | 0 | Yes | `955a0e9` |
 | 1 | Yes | `81dae7c` |
 | 2 | Yes | `a2a657d` |
-| 3 | _waiting for your OK_ | _this commit_ |
+| 3 | Yes | `fa9c216` |
+| 4 | _waiting for your OK_ | _this commit_ |
