@@ -27,8 +27,8 @@ We build on branch **`development`** one step at a time.
 | **5** | Filters + pagination (TDD) | **Done** |
 | **6** | Update / delete (TDD) | **Done** |
 | **7** | Country salary insights (TDD) | **Done** |
-| **8** | Job-title insights + charts (TDD) | **Done — review** |
-| 9 | Seed script (small batch first) | Pending |
+| **8** | Job-title insights + charts (TDD) | **Done** |
+| **9** | Seed script (small batch first) | **Done — review** |
 | 10 | Bulk seed (10k) | Pending |
 | 11 | Streamlit UI (one panel at a time) | Pending |
 | 12 | Docker + final README | Pending |
