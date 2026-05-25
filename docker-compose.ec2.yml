@@ -1,0 +1,33 @@
+# EC2 / hosts without compose buildx 0.17+ — use scripts/ec2_docker_up.sh
+services:
+  api:
+    image: salary-management-api:local
+    pull_policy: never
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/salary.db
+      SEED_DEMO_COUNT: ${SEED_DEMO_COUNT:-500}
+    volumes:
+      - salary_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  ui:
+    image: salary-management-ui:local
+    pull_policy: never
+    ports:
+      - "8501:8501"
+    environment:
+      API_BASE_URL: http://api:8000
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://3.111.144.98:8001}
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  salary_data:

@@ -11,9 +11,23 @@ import streamlit as st
 from app.core.version import API_V1_PREFIX, APP_VERSION
 
 EXPECTED_APP_VERSION = APP_VERSION
+
+
+def _with_v1_prefix(root: str) -> str:
+    root = root.rstrip("/")
+    if root.endswith(API_V1_PREFIX):
+        return root
+    return f"{root}{API_V1_PREFIX}"
+
+
+# Backend URL for server-side HTTP calls (Docker: http://api:8000)
 API_ROOT = os.getenv("API_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
-# UI calls versioned routes: /api/v1/employees, etc.
-API_BASE = f"{API_ROOT}{API_V1_PREFIX}" if not API_ROOT.endswith(API_V1_PREFIX) else API_ROOT
+API_BASE = _with_v1_prefix(API_ROOT)
+
+# Public URL shown in the UI (EC2: http://<public-ip>:8001) — optional
+PUBLIC_API_ROOT = os.getenv("PUBLIC_API_URL", API_ROOT).rstrip("/")
+DISPLAY_API_BASE = _with_v1_prefix(PUBLIC_API_ROOT)
+DISPLAY_SWAGGER_URL = f"{PUBLIC_API_ROOT}/docs"
 
 COUNTRIES = ["US", "UK", "DE", "IN", "CA", "AU", "FR", "JP", "SG", "BR"]
 

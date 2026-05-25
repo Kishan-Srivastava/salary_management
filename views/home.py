@@ -5,7 +5,12 @@ from __future__ import annotations
 import requests
 import streamlit as st
 
-from ui.common import API_BASE, API_ROOT, api_request, check_api_health
+from ui.common import (
+    DISPLAY_API_BASE,
+    DISPLAY_SWAGGER_URL,
+    api_request,
+    check_api_health,
+)
 from ui.theme import inject_home_styles
 
 inject_home_styles()
@@ -55,7 +60,7 @@ st.markdown(
     f"""
     <p class="api-pill">
         <span class="status-dot {status_class}"></span>
-        <span>{API_BASE}</span>
+        <span>{DISPLAY_API_BASE}</span>
     </p>
     """,
     unsafe_allow_html=True,
@@ -133,6 +138,6 @@ with st.expander("Developer commands", expanded=False):
     )
     st.markdown(
         "Health check: "
-        f"[{API_BASE}/health]({API_BASE}/health) · "
-        f"[Swagger]({API_ROOT}/docs)"
+        f"[{DISPLAY_API_BASE}/health]({DISPLAY_API_BASE}/health) · "
+        f"[Swagger]({DISPLAY_SWAGGER_URL})"
     )

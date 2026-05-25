@@ -2,29 +2,106 @@
 
 A full-stack HR salary management application for ~10,000 employees: **FastAPI** REST API (versioned), **SQLite** persistence, **Streamlit** dashboard, and **Docker** deployment.
 
-Repository: [github.com/Kishan-Srivastava/salary_management](https://github.com/Kishan-Srivastava/salary_management)
+**Repository:** [github.com/Kishan-Srivastava/salary_management](https://github.com/Kishan-Srivastava/salary_management)
+
+| | |
+|---|---|
+| **App version** | 1.0.0 |
+| **API version** | v1 (`/api/v1`) |
+| **Stack** | Python 3.12 · FastAPI · SQLAlchemy · Streamlit · pytest |
 
 ---
 
 ## Live demo (for interviewers)
 
-Deploy from GitHub using the buttons below (free hosting). First load after idle sleep may take ~1 minute on free tiers.
-
 | Application | URL |
 |-------------|-----|
-| **Dashboard (Streamlit)** | [https://salary-management-ui.onrender.com](https://salary-management-ui.onrender.com) |
-| **API health** | [https://salary-management-api.onrender.com/api/v1/health](https://salary-management-api.onrender.com/api/v1/health) |
-| **API docs (Swagger)** | [https://salary-management-api.onrender.com/docs](https://salary-management-api.onrender.com/docs) |
+| **Dashboard (Streamlit)** | [http://3.111.144.98:8501](http://3.111.144.98:8501) |
+| **API docs (Swagger)** | [http://3.111.144.98:8001/docs](http://3.111.144.98:8001/docs) |
+| **API health** | [http://3.111.144.98:8001/api/v1/health](http://3.111.144.98:8001/api/v1/health) |
 
-> **Not live yet?** Click **Deploy to Render** once — URLs above work after both services show **Live** in Render. See [DEPLOY.md](DEPLOY.md) for step-by-step instructions and Streamlit Cloud alternative.
+> Hosted on **AWS EC2** (Docker). First visit after idle time may take ~30s while the instance responds. Demo data: **500 employees** seeded on first API start.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Kishan-Srivastava/salary_management)
+Alternative hosting (Render): see [DEPLOY.md](DEPLOY.md) — [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Kishan-Srivastava/salary_management)
 
-[![Open in Streamlit Cloud](https://static.streamlit.io/badge/streamlit-badge-2024.svg)](https://share.streamlit.io/?source=github&repo=Kishan-Srivastava/salary_management&branch=main&mainModule=streamlit_app.py)
+---
 
-**Streamlit Cloud only:** set secret `API_BASE_URL` to your Render API URL (see [.streamlit/secrets.toml.example](.streamlit/secrets.toml.example)).
+## Architecture
 
-The hosted API ships with **500 sample employees** automatically (`SEED_DEMO_COUNT`).
+```mermaid
+flowchart TB
+    subgraph clients [Clients]
+        Browser[Browser / Reviewer]
+    end
+
+    subgraph ui_layer [Presentation]
+        ST[Streamlit UI\nstreamlit_app.py + views/]
+    end
+
+    subgraph api_layer [API - FastAPI v1.0.0]
+        R[routers/\nemployees · insights]
+        S[services/\nbusiness rules]
+        REP[repositories/\nSQL queries]
+    end
+
+    subgraph data [Data]
+        DB[(SQLite\nsalary.db)]
+    end
+
+    Browser -->|HTTP :8501| ST
+    ST -->|HTTP /api/v1/*\nserver-side| R
+    R --> S --> REP --> DB
+```
+
+### Layered backend (clean architecture)
+
+| Layer | Responsibility | Location |
+|-------|----------------|----------|
+| **Routers** | HTTP, query params, status codes | `app/routers/` |
+| **Services** | Business rules, orchestration | `app/services/` |
+| **Repositories** | SQLAlchemy queries, filters | `app/repositories/` |
+| **Models** | ORM entities | `app/models/` |
+| **Schemas** | Pydantic request/response DTOs | `app/schemas/` |
+
+The UI is a **thin client**: Streamlit calls the REST API over HTTP (no direct DB access). Versioned routes are mounted in `app/api/v1/router.py`.
+
+### Key identifiers
+
+| ID | Type | Purpose |
+|----|------|---------|
+| `id` | UUID | Internal primary key (auto-generated) |
+| `emp_id` | Integer, unique | Human-friendly ID for search and UI |
+
+---
+
+## Architectural decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **API versioning** | Path prefix `/api/v1` | Breaking changes can ship as v2 without breaking clients; health exposes `app_version` + `api_version`. |
+| **Liveness vs versioned health** | `GET /health` (minimal) + `GET /api/v1/health` (full) | Load balancers/Docker need a tiny probe; clients get version metadata on the versioned route. |
+| **Layered API** | Routers → services → repositories | Testable units, clear separation of HTTP vs SQL vs rules; matches TDD step-by-step build. |
+| **SQLite** | File DB (`salary.db`) | Zero extra infrastructure for assessment/demo; sufficient for ~10k rows with indexes. |
+| **Emp ID** | Auto-increment integer separate from UUID | Easier HR search and UI labels than raw UUID; UUID kept for stable internal references. |
+| **List filters in SQL** | Repository-level `LIKE` / partial match | Scales better than loading all rows; name vs job-title use different match rules (see tradeoffs). |
+| **Insights via SQL aggregation** | `GROUP BY` in repository | Accurate stats at scale; not computed in Python over full table. |
+| **Streamlit + `st.navigation`** | Multi-page sidebar app | Fast iteration for dashboards; separate pages per feature area. |
+| **UI/API split in Docker** | Two containers, internal `http://api:8000` | Mirrors production pattern; public URL shown via `PUBLIC_API_URL` on AWS. |
+| **TDD increments** | pytest per step before features | Documented in [DEVELOPMENT.md](DEVELOPMENT.md) and [COMMITS.md](COMMITS.md). |
+
+---
+
+## Tradeoffs
+
+| Area | Benefit | Cost / limitation |
+|------|---------|-------------------|
+| **SQLite** | Simple setup, portable file | Not ideal for concurrent writes or multi-instance production; use PostgreSQL/RDS to scale out. |
+| **No auth** | Faster demo and review | Not production-ready for real HR data; add OAuth/API keys if exposed publicly. |
+| **Streamlit UI** | Rapid dashboards, Python-only | Less flexible than React SPA; server-side API calls only. |
+| **Partial name search** | Strict substring/word match (e.g. `kish` → Kishan only) | Job titles still use looser stem match (`finance` → Financial) — intentional, different rules per field. |
+| **Ephemeral cloud DB** | Free tiers (Render/EC2) easy to run | SQLite on free Render/EC2 may reset unless persistent volume attached. |
+| **Bulk seed** | 10k rows in seconds (`bulk_insert_mappings`) | Not suitable for ongoing sync from external HR systems without ETL. |
+| **Single-region EC2** | Low cost demo | No HA, manual security group/port management. |
 
 ---
 
@@ -34,125 +111,89 @@ The hosted API ships with **500 sample employees** automatically (`SEED_DEMO_COU
 
 | Area | Capabilities |
 |------|----------------|
-| **Employees** | Create, read, update, delete; unique integer **Emp ID** (auto-assigned) |
-| **Search & filters** | Partial match on name, job title, Emp ID; filter by country; pagination |
-| **Insights** | Salary stats by country, by job title, histogram distribution, top roles |
-| **Health** | `GET /health` (liveness) · `GET /api/v1/health` (version info) |
+| **Employees** | Create, read, update, delete; `GET/PUT/DELETE /employees/by-emp-id/{emp_id}` |
+| **Search & filters** | `full_name`, `job_title`, `emp_id`, `country`; pagination |
+| **Insights** | Country stats, job-title averages, salary distribution, top roles |
+| **Health** | Liveness + versioned health |
 
 ### Streamlit dashboard
 
 | Panel | Purpose |
 |-------|---------|
-| **Home** | Hero landing, live metrics, feature cards, API status pill |
-| **Modify Employee** | Search table → select row → edit or delete; **Clear selection**; separate create flow |
-| **API Status** | Connection test, friendly errors, recent issue log |
-| **Salary Insights** | Country and job-title tables |
+| **Home** | Metrics, feature cards, API status |
+| **Modify Employee** | Search table → select → edit/delete; separate create section |
+| **API Status** | Connection test, friendly error log |
+| **Salary Insights** | Tabular analytics |
 | **Analytics Charts** | Distribution and top roles |
 
-### Data & quality
+### Quality
 
-- Clean architecture: routers → services → repositories → models
-- **35+** automated tests (pytest)
-- Seed script for 10,000 realistic rows (`scripts/seed.py`)
-- Strict name search (no false positives from stem truncation)
-
----
-
-## Home page snapshot
-
-When you open the dashboard, the **Home** panel looks like this:
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  💼 Salary Management System                                            │
-│  Your HR command center (gradient hero: navy → blue → purple)           │
-└─────────────────────────────────────────────────────────────────────────┘
-
-  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-  │  EMPLOYEES   │ │  API STATUS  │ │  INSIGHTS    │ │  DASHBOARD   │
-  │   (live)     │ │  Connected   │ │    Ready     │ │  4 panels    │
-  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
-
-  ● http://127.0.0.1:8001/api/v1
-
-  ✏️ Modify Employee    🩺 API Status
-  📊 Salary Insights    📈 Analytics Charts
-```
-
-Open the UI: http://127.0.0.1:8501
+- **35+** pytest tests
+- Seed script: `python -m scripts.seed --count 10000`
+- [COMMITS.md](COMMITS.md) — full change history
 
 ---
 
-## API versioning
-
-All business endpoints are under **`/api/v1`** so future **v2** changes stay backward-compatible.
-
-| Type | Path | Description |
-|------|------|-------------|
-| Liveness | `GET /health` | Docker/load-balancer probe |
-| Versioned health | `GET /api/v1/health` | `app_version` **1.0.0**, `api_version` **v1** |
-| Employees | `/api/v1/employees` | CRUD, filters, `/by-emp-id/{id}` |
-| Insights | `/api/v1/insights/*` | Country, job-title, distribution, top-roles |
-
-**Swagger UI:** http://127.0.0.1:8001/docs
-
-```http
-GET  /api/v1/health
-GET  /api/v1/employees?full_name=kish&page=1&page_size=25
-POST /api/v1/employees
-PUT  /api/v1/employees/by-emp-id/42
-GET  /api/v1/insights/country
-```
-
----
-
-## Quick start (local)
+## Setup instructions
 
 ### Prerequisites
 
-- Python 3.12+
-- Git
+- **Python 3.12+**
+- **Git**
+- Optional: **Docker** (local or AWS)
 
-### 1. Clone and install
+### Environment variables
+
+| Variable | Used by | Example | Description |
+|----------|---------|---------|-------------|
+| `API_BASE_URL` | API calls from UI | `http://127.0.0.1:8001` | Server root; UI appends `/api/v1` |
+| `PUBLIC_API_URL` | UI display only | `http://3.111.144.98:8001` | Shown in sidebar/home (AWS/Docker) |
+| `DATABASE_URL` | API | `sqlite:///./salary.db` | SQLAlchemy URL |
+| `SEED_DEMO_COUNT` | API startup | `500` | Auto-seed if DB empty (hosted demos) |
+| `PYTHONPATH` | Tests / API | `.` | Required when running from repo root |
+
+Copy defaults: `copy .env.example .env` (Windows) or `cp .env.example .env` (Linux/macOS).
+
+---
+
+### Option A — Local (recommended for development)
+
+**1. Clone and install**
 
 ```powershell
-git clone git@github.com:Kishan-Srivastava/salary_management.git
+git clone https://github.com/Kishan-Srivastava/salary_management.git
 cd salary_management
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\activate          # Windows
+# source .venv/bin/activate       # Linux/macOS
 pip install -r requirements.txt
 copy .env.example .env
 ```
 
-`API_BASE_URL` in `.env` is the **server root** (`http://127.0.0.1:8001`). The UI appends `/api/v1` to API paths.
-
-### 2. Run API
+**2. Start API** (port **8001**)
 
 ```powershell
 $env:PYTHONPATH="."
 .\scripts\run_api.ps1
 ```
 
-Verify:
+Verify: [http://127.0.0.1:8001/api/v1/health](http://127.0.0.1:8001/api/v1/health) → `"app_version": "1.0.0"`.
 
-- http://127.0.0.1:8001/health  
-- http://127.0.0.1:8001/api/v1/health → `"app_version": "1.0.0"`
-
-### 3. Seed data (optional)
+**3. Seed data (optional)**
 
 ```powershell
 python -m scripts.seed --count 10000
 ```
 
-### 4. Run dashboard
+**4. Start UI** (port **8501**)
 
 ```powershell
 .\scripts\run_ui.ps1
 ```
 
-Open http://127.0.0.1:8501 — sidebar should show **API OK (1.0.0 (v1))**.
+Open [http://127.0.0.1:8501](http://127.0.0.1:8501) — sidebar: **API OK (1.0.0 (v1))**.
 
-### 5. Tests
+**5. Run tests**
 
 ```powershell
 $env:PYTHONPATH="."
@@ -161,19 +202,73 @@ pytest -v
 
 ---
 
-## Docker
+### Option B — Docker (local)
 
 ```powershell
-docker compose up --build
+docker compose up -d --build
 ```
 
 | Service | URL |
 |---------|-----|
-| API | http://127.0.0.1:8001/api/v1/health |
 | UI | http://127.0.0.1:8501 |
-| Swagger | http://127.0.0.1:8001/docs |
+| API Swagger | http://127.0.0.1:8001/docs |
+| API health | http://127.0.0.1:8001/api/v1/health |
 
-SQLite data persists in Docker volume `salary_data`.
+Data persists in volume `salary_data`.
+
+---
+
+### Option C — AWS EC2 (public demo)
+
+Full guide: **[DEPLOY_AWS.md](DEPLOY_AWS.md)**
+
+Quick flow on Amazon Linux 2023:
+
+```bash
+git clone https://github.com/Kishan-Srivastava/salary_management.git
+cd salary_management
+chmod +x scripts/ec2_docker_up.sh
+export PUBLIC_API_URL=http://YOUR_PUBLIC_IP:8001
+./scripts/ec2_docker_up.sh
+```
+
+Security group: allow **22** (SSH), **8501** (UI), **8001** (API).
+
+Manual build (if `compose build` fails on buildx):
+
+```bash
+docker build -t salary-management-api:local -f Dockerfile .
+docker build -t salary-management-ui:local -f Dockerfile.ui .
+export PUBLIC_API_URL=http://3.111.144.98:8001
+docker compose -f docker-compose.ec2.yml up -d
+```
+
+---
+
+### Option D — Render (cloud, no SSH)
+
+See **[DEPLOY.md](DEPLOY.md)** — deploys API + UI from `render.yaml`.
+
+---
+
+## API reference (v1)
+
+| Type | Path |
+|------|------|
+| Liveness | `GET /health` |
+| Versioned health | `GET /api/v1/health` |
+| Employees | `GET/POST /api/v1/employees` |
+| By emp_id | `GET/PUT/DELETE /api/v1/employees/by-emp-id/{emp_id}` |
+| By UUID | `GET/PUT/DELETE /api/v1/employees/{uuid}` |
+| Insights | `GET /api/v1/insights/country`, `/job-title`, `/distribution`, `/top-roles` |
+
+**OpenAPI:** `/docs` on the API host (e.g. http://3.111.144.98:8001/docs).
+
+```http
+GET  /api/v1/employees?full_name=kish&job_title=finance&page=1&page_size=25
+POST /api/v1/employees
+PUT  /api/v1/employees/by-emp-id/42
+```
 
 ---
 
@@ -182,23 +277,27 @@ SQLite data persists in Docker volume `salary_data`.
 ```
 salary_management/
 ├── app/
-│   ├── api/v1/          # Versioned API (v1.0.0)
-│   ├── core/            # config, database, version
-│   ├── models/
-│   ├── repositories/
-│   ├── routers/
-│   ├── schemas/
-│   └── services/
-├── ui/                  # Streamlit helpers, theme, errors
-├── views/               # Streamlit pages
-├── tests/
-├── scripts/             # seed, run_api.ps1, run_ui.ps1
-├── Dockerfile
-├── Dockerfile.ui
-├── docker-compose.yml
+│   ├── api/v1/           # Versioned route aggregation
+│   ├── core/               # config, database, version
+│   ├── models/             # SQLAlchemy ORM
+│   ├── repositories/       # Data access + filters
+│   ├── routers/              # HTTP endpoints
+│   ├── schemas/              # Pydantic DTOs
+│   └── services/             # Business logic
+├── ui/                       # Streamlit helpers, theme, errors
+├── views/                    # Streamlit pages
+├── tests/                    # pytest suite
+├── scripts/                  # seed, run_api.ps1, run_ui.ps1, ec2_docker_up.sh
+├── data/                     # Name lists for seeding
+├── Dockerfile / Dockerfile.ui
+├── docker-compose.yml        # Local Docker
+├── docker-compose.ec2.yml    # EC2 (pre-built images)
+├── render.yaml               # Render blueprint
 ├── README.md
-├── COMMITS.md           # Full commit-by-commit changelog
-└── DEVELOPMENT.md       # Incremental build log
+├── COMMITS.md
+├── DEVELOPMENT.md
+├── DEPLOY.md
+└── DEPLOY_AWS.md
 ```
 
 ---
@@ -207,9 +306,10 @@ salary_management/
 
 | File | Description |
 |------|-------------|
-| [COMMITS.md](COMMITS.md) | Commit-by-commit changelog: what changed and why |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Step-by-step TDD build plan |
-| [DEPLOY.md](DEPLOY.md) | Host online (Render / Streamlit Cloud) |
+| [COMMITS.md](COMMITS.md) | Every commit: what changed and why |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Incremental TDD roadmap |
+| [DEPLOY.md](DEPLOY.md) | Render / Streamlit Cloud |
+| [DEPLOY_AWS.md](DEPLOY_AWS.md) | AWS EC2 + Docker troubleshooting |
 
 ---
 

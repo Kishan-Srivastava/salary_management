@@ -10,7 +10,7 @@ load_dotenv(ROOT / ".env", override=True)
 
 import streamlit as st
 
-from ui.common import API_BASE, check_api_health
+from ui.common import DISPLAY_API_BASE, check_api_health
 from ui.theme import inject_app_theme
 
 UI_BUILD = datetime.fromtimestamp((ROOT / "views" / "home.py").stat().st_mtime).strftime(
@@ -37,7 +37,7 @@ pages = [
 with st.sidebar:
     st.markdown("### 💼 Salary MS")
     st.caption(f"Build {UI_BUILD}")
-    st.caption(f"`{API_BASE}`")
+    st.caption(f"API: `{DISPLAY_API_BASE}`")
     health = check_api_health()
     if health["ok"]:
         st.success(f"API OK ({health['version']})")

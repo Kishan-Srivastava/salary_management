@@ -9,7 +9,7 @@ import requests
 import streamlit as st
 
 from app.core.version import API_VERSION
-from ui.common import API_BASE, EXPECTED_APP_VERSION, check_api_health
+from ui.common import API_BASE, DISPLAY_API_BASE, EXPECTED_APP_VERSION, check_api_health
 
 SESSION_KEY = "api_error_log"
 
@@ -146,7 +146,8 @@ def render_api_status_page() -> None:
     health = check_api_health()
     c1, c2 = st.columns(2)
     with c1:
-        st.metric("API address", API_BASE)
+        st.metric("Public API", DISPLAY_API_BASE)
+        st.caption(f"Internal calls use `{API_BASE}`")
     with c2:
         st.metric("Expected app version", f"{EXPECTED_APP_VERSION} ({API_VERSION})")
 
