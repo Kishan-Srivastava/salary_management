@@ -10,19 +10,27 @@ from app.schemas.employee import EmployeeCreate
 
 
 def _job_title_filter(term: str):
-    """Partial, case-insensitive match (e.g. 'finance' → 'Financial Analyst')."""
-    cleaned = term.strip()
-    if not cleaned:
+    """
+    Case-insensitive partial search on job_title.
+
+    Examples:
+      'finance' matches 'Financial Analyst', 'Finance Manager', 'Senior Finance Lead'
+    """
+    search = term.strip().lower()
+    if not search:
         return None
 
-    patterns = {f"%{cleaned}%"}
-    if len(cleaned) >= 4:
-        # 'finance' also matches words starting with 'financ' (Financial, Finance)
-        patterns.add(f"{cleaned[:-1]}%")
-        patterns.add(f"% {cleaned}%")
-        patterns.add(f"% {cleaned[:-1]}%")
+    column = func.lower(Employee.job_title)
+    clauses = [
+        column.like(f"%{search}%"),
+        column.like(f"{search}%"),
+    ]
+    # 'finance' -> also match 'financ' root inside words (financial, finance)
+    if len(search) >= 4:
+        root = search[:-1]
+        clauses.append(column.like(f"%{root}%"))
 
-    return or_(*[Employee.job_title.ilike(p) for p in patterns])
+    return or_(*clauses)
 
 
 class EmployeeRepository:
