@@ -22,3 +22,14 @@ def test_create_employee(client) -> None:
     assert UUID(data["id"])
     assert "created_at" in data
     assert "updated_at" in data
+
+
+def test_create_employee_rejects_non_positive_salary(client) -> None:
+    payload = {
+        "full_name": "Jane Doe",
+        "job_title": "Software Engineer",
+        "country": "US",
+        "salary": 0,
+    }
+    response = client.post("/employees", json=payload)
+    assert response.status_code == 422
