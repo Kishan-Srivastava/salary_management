@@ -78,6 +78,14 @@ docker compose version
 ```bash
 git clone https://github.com/Kishan-Srivastava/salary_management.git
 cd salary_management
+git pull origin main   # must include DISPLAY_API_BASE + load_dotenv fix
+```
+
+If `git status` shows local edits, reset to GitHub before deploy:
+
+```bash
+git fetch origin
+git reset --hard origin/main
 ```
 
 Start (EC2 script — avoids `buildx 0.17` error):

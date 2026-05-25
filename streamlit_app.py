@@ -6,7 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parent
-load_dotenv(ROOT / ".env", override=True)
+# Docker/EC2 env must win over .env (override=False)
+load_dotenv(ROOT / ".env", override=False)
 
 import streamlit as st
 

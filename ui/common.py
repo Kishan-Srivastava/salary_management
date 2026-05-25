@@ -20,12 +20,44 @@ def _with_v1_prefix(root: str) -> str:
     return f"{root}{API_V1_PREFIX}"
 
 
+def _ec2_public_api_root() -> str | None:
+    """AWS instance metadata — public URL for dashboard display on EC2."""
+    try:
+        import urllib.request
+
+        ip = (
+            urllib.request.urlopen(
+                "http://169.254.169.254/latest/meta-data/public-ipv4",
+                timeout=2,
+            )
+            .read()
+            .decode()
+            .strip()
+        )
+        if ip:
+            return f"http://{ip}:8001"
+    except Exception:
+        pass
+    return None
+
+
+def _resolve_public_api_root(api_root: str) -> str:
+    explicit = os.getenv("PUBLIC_API_URL", "").strip().rstrip("/")
+    if explicit:
+        return explicit
+    if "://api:" in api_root or api_root.rstrip("/").endswith("//api:8000"):
+        detected = _ec2_public_api_root()
+        if detected:
+            return detected
+    return api_root
+
+
 # Backend URL for server-side HTTP calls (Docker: http://api:8000)
 API_ROOT = os.getenv("API_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 API_BASE = _with_v1_prefix(API_ROOT)
 
-# Public URL shown in the UI (EC2: http://<public-ip>:8001) — optional
-PUBLIC_API_ROOT = os.getenv("PUBLIC_API_URL", API_ROOT).rstrip("/")
+# Public URL shown in the UI (sidebar, home page)
+PUBLIC_API_ROOT = _resolve_public_api_root(API_ROOT)
 DISPLAY_API_BASE = _with_v1_prefix(PUBLIC_API_ROOT)
 DISPLAY_SWAGGER_URL = f"{PUBLIC_API_ROOT}/docs"
 
