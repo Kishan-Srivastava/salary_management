@@ -75,7 +75,7 @@ def test_filter_by_name_partial_match(client) -> None:
     _create(client, "Jane Williams", job_title="Analyst")
     _create(client, "Johnny Bravo", job_title="Designer")
 
-    response = client.get("/employees", params={"name": "john"})
+    response = client.get("/employees", params={"full_name": "john"})
     assert response.status_code == 200
     body = response.json()
     assert body["total"] == 2
@@ -89,7 +89,7 @@ def test_filter_by_name_and_job_title(client) -> None:
 
     response = client.get(
         "/employees",
-        params={"name": "alice", "job_title": "finance"},
+        params={"full_name": "alice", "job_title": "finance"},
     )
     assert response.status_code == 200
     assert response.json()["total"] == 1
