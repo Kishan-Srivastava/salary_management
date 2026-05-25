@@ -2,11 +2,11 @@
 
 Built incrementally on branch **`development`** — one small step at a time with TDD.
 
-## Current step: 0 — Environment
+## Current step: 1 — Database + Employee model
 
 See **[DEVELOPMENT.md](DEVELOPMENT.md)** for the full roadmap and approval process.
 
-### Quick start (Step 0)
+### Quick start
 
 ```powershell
 cd salary_management
@@ -18,9 +18,9 @@ uvicorn app.main:app --reload
 ```
 
 - Health: http://127.0.0.1:8000/health  
-- API docs: http://127.0.0.1:8000/docs  
+- **3 tests** should pass (health + database)
 
-When this works for you, say **“Step 0 approved”** in chat to begin Step 1 (database + model).
+When Step 1 looks good, say **“Step 1 approved”** to begin Step 2 (create employee API, TDD).
 
 ### Branches
 

@@ -19,8 +19,8 @@ We build on branch **`development`** one step at a time.
 
 | Step | Scope | Status |
 |------|--------|--------|
-| **0** | Environment: venv, deps, health API, smoke test | **In progress** |
-| 1 | Database + `Employee` model | Pending |
+| **0** | Environment: venv, deps, health API, smoke test | **Done** |
+| **1** | Database + `Employee` model | **Done — review** |
 | 2 | Create employee (TDD) | Pending |
 | 3 | Get employee by id (TDD) | Pending |
 | 4 | List employees (TDD) | Pending |
@@ -68,8 +68,34 @@ Open http://127.0.0.1:8000/health → `{"status":"ok"}`
 
 ---
 
+## Step 1 — Database + Employee model
+
+**Goal:** SQLAlchemy setup and `Employee` table with indexes on `country` and `job_title`.
+
+**New files:**
+
+```
+app/core/config.py
+app/core/database.py
+app/models/employee.py
+tests/test_database.py
+```
+
+**Run:**
+
+```powershell
+pytest -v
+```
+
+Expected: **3 tests** (2 database + 1 health).
+
+**When satisfied, reply:** `Step 1 approved` — then Step 2 (create employee, TDD).
+
+---
+
 ## Approval log
 
 | Step | Approved by you | Commit |
 |------|-----------------|--------|
-| 0 | _waiting for your OK_ | `955a0e9` |
+| 0 | Yes | `955a0e9` |
+| 1 | _waiting for your OK_ | _this commit_ |
