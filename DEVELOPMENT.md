@@ -29,8 +29,8 @@ We build on branch **`development`** one step at a time.
 | **7** | Country salary insights (TDD) | **Done** |
 | **8** | Job-title insights + charts (TDD) | **Done** |
 | **9** | Seed script (small batch first) | **Done** |
-| **10** | Bulk seed (10k) | **Done — review** |
-| 11 | Streamlit UI (one panel at a time) | Pending |
+| **10** | Bulk seed (10k) | **Done** |
+| **11** | Streamlit UI (4 sidebar panels) | **Done — review** |
 | 12 | Docker + final README | Pending |
 
 ---
@@ -176,7 +176,39 @@ Expected: **5 tests** pass.
 | 7 | Yes | `87c096a` |
 | 8 | Yes | `3410041` |
 | 9 | Yes | `0ca4bd6` |
-| 10 | _waiting for your OK_ | _this commit_ |
+| 10 | Yes | `83f9bea` |
+| 11 | _waiting for your OK_ | _this commit_ |
+
+---
+
+## Step 11 — Streamlit UI
+
+**Goal:** HR dashboard with **4 sidebar panels** wired to the API.
+
+| Panel | File |
+|-------|------|
+| Home | `views/home.py` |
+| Add / Update | `views/add_update.py` |
+| Browse | `views/browse.py` (name + job_title + country filters) |
+| Salary Insights | `views/insights.py` |
+| Analytics Charts | `views/charts.py` |
+
+**Run (two terminals):**
+
+```powershell
+# Terminal 1 — API
+$env:PYTHONPATH="."
+uvicorn app.main:app --reload --port 8001
+
+# Terminal 2 — UI
+$env:PYTHONPATH="."
+$env:API_BASE_URL="http://127.0.0.1:8001"
+streamlit run streamlit_app.py --server.port 8501
+```
+
+Open http://127.0.0.1:8501
+
+**When satisfied, reply:** `Step 11 approved` — then Step 12 (Docker + final README).
 
 ---
 
