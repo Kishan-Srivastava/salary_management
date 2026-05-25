@@ -6,6 +6,28 @@ Repository: [github.com/Kishan-Srivastava/salary_management](https://github.com/
 
 ---
 
+## Live demo (for interviewers)
+
+Deploy from GitHub using the buttons below (free hosting). First load after idle sleep may take ~1 minute on free tiers.
+
+| Application | URL |
+|-------------|-----|
+| **Dashboard (Streamlit)** | [https://salary-management-ui.onrender.com](https://salary-management-ui.onrender.com) |
+| **API health** | [https://salary-management-api.onrender.com/api/v1/health](https://salary-management-api.onrender.com/api/v1/health) |
+| **API docs (Swagger)** | [https://salary-management-api.onrender.com/docs](https://salary-management-api.onrender.com/docs) |
+
+> **Not live yet?** Click **Deploy to Render** once — URLs above work after both services show **Live** in Render. See [DEPLOY.md](DEPLOY.md) for step-by-step instructions and Streamlit Cloud alternative.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Kishan-Srivastava/salary_management)
+
+[![Open in Streamlit Cloud](https://static.streamlit.io/badge/streamlit-badge-2024.svg)](https://share.streamlit.io/?source=github&repo=Kishan-Srivastava/salary_management&branch=main&mainModule=streamlit_app.py)
+
+**Streamlit Cloud only:** set secret `API_BASE_URL` to your Render API URL (see [.streamlit/secrets.toml.example](.streamlit/secrets.toml.example)).
+
+The hosted API ships with **500 sample employees** automatically (`SEED_DEMO_COUNT`).
+
+---
+
 ## Features
 
 ### REST API (`/api/v1`)
@@ -185,8 +207,9 @@ salary_management/
 
 | File | Description |
 |------|-------------|
-| [COMMITS.md](COMMITS.md) | Every commit on `development` → `main`: what changed and why |
+| [COMMITS.md](COMMITS.md) | Commit-by-commit changelog: what changed and why |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Step-by-step TDD build plan |
+| [DEPLOY.md](DEPLOY.md) | Host online (Render / Streamlit Cloud) |
 
 ---
 

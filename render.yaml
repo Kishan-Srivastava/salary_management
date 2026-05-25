@@ -1,0 +1,32 @@
+# Render Blueprint — deploy API + Streamlit UI from GitHub (free tier).
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: salary-management-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: .
+      - key: DATABASE_URL
+        value: sqlite:////tmp/salary.db
+      - key: SEED_DEMO_COUNT
+        value: "500"
+
+  - type: web
+    name: salary-management-ui
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --browser.gatherUsageStats=false
+    envVars:
+      - key: PYTHONPATH
+        value: .
+      - key: API_BASE_URL
+        fromService:
+          type: web
+          name: salary-management-api
+          envVarKey: RENDER_EXTERNAL_URL

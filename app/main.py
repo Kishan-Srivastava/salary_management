@@ -28,10 +28,33 @@ def health_liveness() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _maybe_seed_demo_data() -> None:
+    """Seed sample employees on empty DB when SEED_DEMO_COUNT is set (hosted demos)."""
+    settings = get_settings()
+    if settings.seed_demo_count <= 0:
+        return
+
+    from sqlalchemy import func, select
+
+    from app.core.database import SessionLocal
+    from app.models.employee import Employee
+    from scripts.seed import seed
+
+    db = SessionLocal()
+    try:
+        total = db.scalar(select(func.count()).select_from(Employee)) or 0
+        if total == 0:
+            seed(db, settings.seed_demo_count)
+            logger.info("Seeded %s demo employees", settings.seed_demo_count)
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     settings = get_settings()
     init_db()
+    _maybe_seed_demo_data()
     logger.info("Salary Management API v%s started", APP_VERSION)
     logger.info("API %s mounted at %s", API_VERSION, API_V1_PREFIX)
     logger.info("Database: %s", settings.database_url)

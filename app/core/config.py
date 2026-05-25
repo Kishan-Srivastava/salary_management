@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     )
 
     database_url: str = "sqlite:///./salary.db"
+    seed_demo_count: int = 0
 
 
 @lru_cache
