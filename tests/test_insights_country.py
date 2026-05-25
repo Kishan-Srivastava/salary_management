@@ -1,5 +1,7 @@
 """Step 7 — country salary insights (TDD)."""
 
+from tests.paths import EMPLOYEES, INSIGHTS_COUNTRY
+
 
 def _seed(client) -> None:
     samples = [
@@ -10,12 +12,12 @@ def _seed(client) -> None:
         {"full_name": "E", "job_title": "Analyst", "country": "UK", "salary": 55000},
     ]
     for payload in samples:
-        client.post("/employees", json=payload)
+        client.post(EMPLOYEES, json=payload)
 
 
 def test_country_insights(client) -> None:
     _seed(client)
-    response = client.get("/insights/country")
+    response = client.get(INSIGHTS_COUNTRY)
     assert response.status_code == 200
     data = response.json()
     us = next(row for row in data if row["country"] == "US")
@@ -26,6 +28,6 @@ def test_country_insights(client) -> None:
 
 
 def test_country_insights_empty(client) -> None:
-    response = client.get("/insights/country")
+    response = client.get(INSIGHTS_COUNTRY)
     assert response.status_code == 200
     assert response.json() == []

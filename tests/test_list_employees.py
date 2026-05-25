@@ -1,5 +1,7 @@
 """Step 4–5 — list employees with filters (TDD)."""
 
+from tests.paths import EMPLOYEES
+
 
 def _create(
     client,
@@ -8,7 +10,7 @@ def _create(
     country: str = "US",
 ) -> None:
     client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": full_name,
             "job_title": job_title,
@@ -19,7 +21,7 @@ def _create(
 
 
 def test_list_employees_empty(client) -> None:
-    response = client.get("/employees")
+    response = client.get(EMPLOYEES)
     assert response.status_code == 200
     body = response.json()
     assert body["items"] == []
@@ -31,7 +33,7 @@ def test_list_employees_returns_all(client) -> None:
     _create(client, "Alice")
     _create(client, "Bob", country="UK")
 
-    response = client.get("/employees")
+    response = client.get(EMPLOYEES)
     assert response.status_code == 200
     body = response.json()
     assert body["total"] == 2
@@ -44,7 +46,7 @@ def test_filter_job_title_partial_match(client) -> None:
     _create(client, "Ben", job_title="Software Engineer")
     _create(client, "Cal", job_title="Senior Finance Manager")
 
-    response = client.get("/employees", params={"job_title": "finance"})
+    response = client.get(EMPLOYEES, params={"job_title": "finance"})
     assert response.status_code == 200
     body = response.json()
     assert body["total"] == 2
@@ -55,7 +57,7 @@ def test_filter_job_title_partial_match(client) -> None:
 def test_filter_job_title_case_insensitive(client) -> None:
     _create(client, "Dana", job_title="Financial Analyst")
 
-    response = client.get("/employees", params={"job_title": "FINANCE"})
+    response = client.get(EMPLOYEES, params={"job_title": "FINANCE"})
     assert response.status_code == 200
     assert response.json()["total"] == 1
 
@@ -64,7 +66,7 @@ def test_filter_by_country(client) -> None:
     _create(client, "Eve", job_title="Engineer", country="US")
     _create(client, "Finn", job_title="Engineer", country="UK")
 
-    response = client.get("/employees", params={"country": "UK"})
+    response = client.get(EMPLOYEES, params={"country": "UK"})
     assert response.status_code == 200
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["country"] == "UK"
@@ -75,7 +77,7 @@ def test_filter_by_name_partial_match(client) -> None:
     _create(client, "Jane Williams", job_title="Analyst")
     _create(client, "Johnny Bravo", job_title="Designer")
 
-    response = client.get("/employees", params={"full_name": "john"})
+    response = client.get(EMPLOYEES, params={"full_name": "john"})
     assert response.status_code == 200
     body = response.json()
     assert body["total"] == 2
@@ -88,7 +90,7 @@ def test_filter_name_excludes_stem_false_positives(client) -> None:
     _create(client, "Kristin Jones")
     _create(client, "Ankit Singh")
 
-    response = client.get("/employees", params={"full_name": "kish"})
+    response = client.get(EMPLOYEES, params={"full_name": "kish"})
     assert response.status_code == 200
     names = {item["full_name"] for item in response.json()["items"]}
     assert names == {"Kishan Patel"}
@@ -99,7 +101,7 @@ def test_filter_by_name_and_job_title(client) -> None:
     _create(client, "Bob Finance", job_title="Software Engineer")
 
     response = client.get(
-        "/employees",
+        EMPLOYEES,
         params={"full_name": "alice", "job_title": "finance"},
     )
     assert response.status_code == 200
@@ -109,7 +111,7 @@ def test_filter_by_name_and_job_title(client) -> None:
 
 def test_filter_by_emp_id_partial(client) -> None:
     r1 = client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": "One",
             "job_title": "Engineer",
@@ -118,7 +120,7 @@ def test_filter_by_emp_id_partial(client) -> None:
         },
     )
     r2 = client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": "Two",
             "job_title": "Engineer",
@@ -129,7 +131,7 @@ def test_filter_by_emp_id_partial(client) -> None:
     emp1 = r1.json()["emp_id"]
     emp2 = r2.json()["emp_id"]
 
-    response = client.get("/employees", params={"emp_id": str(emp1)[:1]})
+    response = client.get(EMPLOYEES, params={"emp_id": str(emp1)[:1]})
     assert response.status_code == 200
     ids = {item["emp_id"] for item in response.json()["items"]}
     assert emp1 in ids or emp2 in ids
@@ -137,7 +139,7 @@ def test_filter_by_emp_id_partial(client) -> None:
 
 def test_get_by_emp_id(client) -> None:
     created = client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": "Lookup",
             "job_title": "Engineer",
@@ -145,7 +147,7 @@ def test_get_by_emp_id(client) -> None:
             "salary": 75000,
         },
     ).json()
-    response = client.get(f"/employees/by-emp-id/{created['emp_id']}")
+    response = client.get(f"{EMPLOYEES}/by-emp-id/{created['emp_id']}")
     assert response.status_code == 200
     assert response.json()["full_name"] == "Lookup"
 
@@ -154,7 +156,7 @@ def test_list_pagination(client) -> None:
     for i in range(5):
         _create(client, f"Person{i}")
 
-    response = client.get("/employees", params={"page": 1, "page_size": 2})
+    response = client.get(EMPLOYEES, params={"page": 1, "page_size": 2})
     body = response.json()
     assert body["total"] == 5
     assert len(body["items"]) == 2

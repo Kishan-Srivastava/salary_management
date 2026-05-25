@@ -5,7 +5,7 @@ from __future__ import annotations
 import requests
 import streamlit as st
 
-from ui.common import API_BASE, api_request, check_api_health
+from ui.common import API_BASE, API_ROOT, api_request, check_api_health
 from ui.theme import inject_home_styles
 
 inject_home_styles()
@@ -134,5 +134,5 @@ with st.expander("Developer commands", expanded=False):
     st.markdown(
         "Health check: "
         f"[{API_BASE}/health]({API_BASE}/health) · "
-        f"[API docs]({API_BASE}/docs)"
+        f"[Swagger]({API_ROOT}/docs)"
     )

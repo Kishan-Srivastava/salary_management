@@ -2,10 +2,12 @@
 
 from uuid import uuid4
 
+from tests.paths import EMPLOYEES
+
 
 def test_get_employee_by_id(client) -> None:
     created = client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": "Jane Doe",
             "job_title": "Engineer",
@@ -14,7 +16,7 @@ def test_get_employee_by_id(client) -> None:
         },
     ).json()
 
-    response = client.get(f"/employees/{created['id']}")
+    response = client.get(f"{EMPLOYEES}/{created['id']}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == created["id"]
@@ -22,5 +24,5 @@ def test_get_employee_by_id(client) -> None:
 
 
 def test_get_employee_not_found(client) -> None:
-    response = client.get(f"/employees/{uuid4()}")
+    response = client.get(f"{EMPLOYEES}/{uuid4()}")
     assert response.status_code == 404

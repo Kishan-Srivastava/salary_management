@@ -9,7 +9,11 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
+from app.core.version import API_V1_PREFIX
 from app.main import app
+
+# All business endpoints are under /api/v1
+API_V1 = API_V1_PREFIX
 
 
 @pytest.fixture

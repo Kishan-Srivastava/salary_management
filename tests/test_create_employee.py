@@ -2,6 +2,8 @@
 
 from uuid import UUID
 
+from tests.paths import EMPLOYEES
+
 
 def test_create_employee(client) -> None:
     payload = {
@@ -11,7 +13,7 @@ def test_create_employee(client) -> None:
         "salary": 95000.00,
         "currency": "USD",
     }
-    response = client.post("/employees", json=payload)
+    response = client.post(EMPLOYEES, json=payload)
     assert response.status_code == 201
     data = response.json()
     assert data["full_name"] == payload["full_name"]
@@ -28,7 +30,7 @@ def test_create_employee(client) -> None:
 
 def test_create_employee_rejects_zero_salary(client) -> None:
     response = client.post(
-        "/employees",
+        EMPLOYEES,
         json={
             "full_name": "Jane Doe",
             "job_title": "Engineer",

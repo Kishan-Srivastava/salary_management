@@ -12,5 +12,7 @@ foreach ($conn in $connections) {
 }
 
 $env:PYTHONPATH = "."
-Write-Host "Starting API on http://127.0.0.1:$port (health: /health should show step11-emp-id)"
+Write-Host "Starting API v1.0.0 on http://127.0.0.1:$port"
+Write-Host "  Liveness:  http://127.0.0.1:$port/health"
+Write-Host "  Versioned: http://127.0.0.1:$port/api/v1/health"
 & "$Root\.venv\Scripts\uvicorn.exe" app.main:app --reload --host 127.0.0.1 --port $port

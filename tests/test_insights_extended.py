@@ -1,5 +1,12 @@
 """Step 8 — job-title insights, distribution, top roles (TDD)."""
 
+from tests.paths import (
+    EMPLOYEES,
+    INSIGHTS_DISTRIBUTION,
+    INSIGHTS_JOB_TITLE,
+    INSIGHTS_TOP_ROLES,
+)
+
 
 def _seed(client) -> None:
     samples = [
@@ -10,12 +17,12 @@ def _seed(client) -> None:
         {"full_name": "E", "job_title": "Analyst", "country": "UK", "salary": 55000},
     ]
     for payload in samples:
-        client.post("/employees", json=payload)
+        client.post(EMPLOYEES, json=payload)
 
 
 def test_job_title_insights(client) -> None:
     _seed(client)
-    response = client.get("/insights/job-title")
+    response = client.get(INSIGHTS_JOB_TITLE)
     assert response.status_code == 200
     data = response.json()
     us_engineers = [
@@ -28,7 +35,7 @@ def test_job_title_insights(client) -> None:
 
 def test_salary_distribution(client) -> None:
     _seed(client)
-    response = client.get("/insights/distribution", params={"country": "US"})
+    response = client.get(INSIGHTS_DISTRIBUTION, params={"country": "US"})
     assert response.status_code == 200
     buckets = response.json()["buckets"]
     assert sum(b["count"] for b in buckets) == 3
@@ -36,7 +43,7 @@ def test_salary_distribution(client) -> None:
 
 def test_top_roles_by_country(client) -> None:
     _seed(client)
-    response = client.get("/insights/top-roles", params={"limit": 2})
+    response = client.get(INSIGHTS_TOP_ROLES, params={"limit": 2})
     assert response.status_code == 200
     data = response.json()
     us = next(item for item in data if item["country"] == "US")

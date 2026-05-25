@@ -8,8 +8,12 @@ from typing import Any
 import requests
 import streamlit as st
 
-EXPECTED_API_VERSION = "step11-emp-id"
-API_BASE = os.getenv("API_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
+from app.core.version import API_V1_PREFIX, APP_VERSION
+
+EXPECTED_APP_VERSION = APP_VERSION
+API_ROOT = os.getenv("API_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
+# UI calls versioned routes: /api/v1/employees, etc.
+API_BASE = f"{API_ROOT}{API_V1_PREFIX}" if not API_ROOT.endswith(API_V1_PREFIX) else API_ROOT
 
 COUNTRIES = ["US", "UK", "DE", "IN", "CA", "AU", "FR", "JP", "SG", "BR"]
 
@@ -20,18 +24,28 @@ def check_api_health() -> dict[str, str | bool]:
         response = requests.get(f"{API_BASE}/health", timeout=5)
         response.raise_for_status()
         body = response.json()
-        version = str(body.get("version", ""))
-        if version != EXPECTED_API_VERSION:
+        app_version = str(body.get("app_version", body.get("version", "")))
+        api_version = str(body.get("api_version", ""))
+        if app_version != EXPECTED_APP_VERSION:
             return {
                 "ok": False,
-                "version": version,
+                "version": app_version,
                 "message": (
-                    f"Wrong API on {API_BASE} (version={version!r}). "
-                    f"Stop the old server on port 8000 and run: "
-                    f"uvicorn app.main:app --reload --port 8001"
+                    f"Wrong API on {API_BASE} (app_version={app_version!r}, expected {EXPECTED_APP_VERSION}). "
+                    f"Restart: uvicorn app.main:app --reload --port 8001"
                 ),
             }
-        return {"ok": True, "version": version, "message": "ok"}
+        if api_version and api_version != "v1":
+            return {
+                "ok": False,
+                "version": app_version,
+                "message": f"Unsupported API version {api_version!r}. Use /api/v1.",
+            }
+        return {
+            "ok": True,
+            "version": f"{app_version} ({api_version or 'v1'})",
+            "message": "ok",
+        }
     except requests.RequestException as exc:
         return {
             "ok": False,
