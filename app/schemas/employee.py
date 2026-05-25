@@ -1,4 +1,4 @@
-"""Employee API schemas — Step 2: create only."""
+"""Employee API schemas."""
 
 from datetime import datetime
 from enum import Enum
@@ -52,6 +52,7 @@ class EmployeeResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    emp_id: int
     full_name: str
     job_title: str
     country: str

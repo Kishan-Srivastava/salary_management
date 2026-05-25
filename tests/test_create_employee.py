@@ -20,6 +20,8 @@ def test_create_employee(client) -> None:
     assert float(data["salary"]) == payload["salary"]
     assert data["currency"] == "USD"
     assert UUID(data["id"])
+    assert isinstance(data["emp_id"], int)
+    assert data["emp_id"] >= 1
     assert "created_at" in data
     assert "updated_at" in data
 

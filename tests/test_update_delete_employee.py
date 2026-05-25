@@ -66,3 +66,20 @@ def test_delete_employee(client) -> None:
 def test_delete_employee_not_found(client) -> None:
     response = client.delete(f"/employees/{uuid4()}")
     assert response.status_code == 404
+
+
+def test_update_by_emp_id(client) -> None:
+    created = _create(client)
+    response = client.put(
+        f"/employees/by-emp-id/{created['emp_id']}",
+        json={"full_name": "Updated Via Emp Id"},
+    )
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Updated Via Emp Id"
+
+
+def test_delete_by_emp_id(client) -> None:
+    created = _create(client)
+    delete_resp = client.delete(f"/employees/by-emp-id/{created['emp_id']}")
+    assert delete_resp.status_code == 204
+    assert client.get(f"/employees/by-emp-id/{created['emp_id']}").status_code == 404

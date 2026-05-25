@@ -26,4 +26,4 @@ def on_startup() -> None:
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "version": "step8"}
+    return {"status": "ok", "version": "step11-emp-id"}

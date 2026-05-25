@@ -83,13 +83,13 @@ def load_names(filename: str) -> list[str]:
         return [line.strip() for line in handle if line.strip()]
 
 
-def build_employee_rows(count: int) -> list[dict]:
+def build_employee_rows(count: int, start_emp_id: int = 1) -> list[dict]:
     first_names = load_names("first_names.txt")
     last_names = load_names("last_names.txt")
     now = datetime.now(timezone.utc)
     rows: list[dict] = []
 
-    for _ in range(count):
+    for offset in range(count):
         job_title = random.choice(JOB_TITLES)
         country = random.choice(COUNTRIES)
         low, high = SALARY_RANGES[job_title]
@@ -97,6 +97,7 @@ def build_employee_rows(count: int) -> list[dict]:
         rows.append(
             {
                 "id": uuid.uuid4(),
+                "emp_id": start_emp_id + offset,
                 "full_name": f"{random.choice(first_names)} {random.choice(last_names)}",
                 "job_title": job_title,
                 "country": country,
@@ -111,7 +112,7 @@ def build_employee_rows(count: int) -> list[dict]:
 
 def seed(db: Session, count: int) -> None:
     repo = EmployeeRepository(db)
-    rows = build_employee_rows(count)
+    rows = build_employee_rows(count, start_emp_id=repo.next_emp_id())
     for start in range(0, len(rows), BATCH_SIZE):
         repo.bulk_insert(rows[start : start + BATCH_SIZE])
 

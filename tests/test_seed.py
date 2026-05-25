@@ -16,6 +16,8 @@ def test_build_employee_rows() -> None:
     assert all(row["full_name"] for row in rows)
     assert all(row["salary"] > 0 for row in rows)
     assert "id" in rows[0]
+    assert rows[0]["emp_id"] == 1
+    assert rows[-1]["emp_id"] == 10
 
 
 def test_seed_inserts_via_bulk_insert() -> None:

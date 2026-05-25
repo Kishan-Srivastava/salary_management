@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Index, Numeric, String, func
+from sqlalchemy import DateTime, Index, Integer, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -14,9 +14,11 @@ class Employee(Base):
     __table_args__ = (
         Index("ix_employees_country", "country"),
         Index("ix_employees_job_title", "job_title"),
+        Index("ix_employees_emp_id", "emp_id", unique=True),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    emp_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     job_title: Mapped[str] = mapped_column(String(128), nullable=False)
     country: Mapped[str] = mapped_column(String(64), nullable=False)

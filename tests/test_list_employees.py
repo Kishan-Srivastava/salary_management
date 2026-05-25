@@ -83,6 +83,17 @@ def test_filter_by_name_partial_match(client) -> None:
     assert names == {"John Smith", "Johnny Bravo"}
 
 
+def test_filter_name_excludes_stem_false_positives(client) -> None:
+    _create(client, "Kishan Patel")
+    _create(client, "Kristin Jones")
+    _create(client, "Ankit Singh")
+
+    response = client.get("/employees", params={"full_name": "kish"})
+    assert response.status_code == 200
+    names = {item["full_name"] for item in response.json()["items"]}
+    assert names == {"Kishan Patel"}
+
+
 def test_filter_by_name_and_job_title(client) -> None:
     _create(client, "Alice Finance", job_title="Financial Analyst")
     _create(client, "Bob Finance", job_title="Software Engineer")
@@ -94,6 +105,49 @@ def test_filter_by_name_and_job_title(client) -> None:
     assert response.status_code == 200
     assert response.json()["total"] == 1
     assert response.json()["items"][0]["full_name"] == "Alice Finance"
+
+
+def test_filter_by_emp_id_partial(client) -> None:
+    r1 = client.post(
+        "/employees",
+        json={
+            "full_name": "One",
+            "job_title": "Engineer",
+            "country": "US",
+            "salary": 75000,
+        },
+    )
+    r2 = client.post(
+        "/employees",
+        json={
+            "full_name": "Two",
+            "job_title": "Engineer",
+            "country": "US",
+            "salary": 75000,
+        },
+    )
+    emp1 = r1.json()["emp_id"]
+    emp2 = r2.json()["emp_id"]
+
+    response = client.get("/employees", params={"emp_id": str(emp1)[:1]})
+    assert response.status_code == 200
+    ids = {item["emp_id"] for item in response.json()["items"]}
+    assert emp1 in ids or emp2 in ids
+
+
+def test_get_by_emp_id(client) -> None:
+    created = client.post(
+        "/employees",
+        json={
+            "full_name": "Lookup",
+            "job_title": "Engineer",
+            "country": "US",
+            "salary": 75000,
+        },
+    ).json()
+    response = client.get(f"/employees/by-emp-id/{created['emp_id']}")
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Lookup"
 
 
 def test_list_pagination(client) -> None:

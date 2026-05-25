@@ -2,7 +2,7 @@
 
 from collections.abc import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, inspect, select, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
@@ -42,7 +42,44 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+def _migrate_emp_id_column() -> None:
+    """Add emp_id to existing SQLite DBs and backfill unique integers."""
+    from app.models.employee import Employee
+    from app.repositories.employee import EmployeeRepository
+
+    inspector = inspect(engine)
+    if "employees" not in inspector.get_table_names():
+        return
+
+    columns = {col["name"] for col in inspector.get_columns("employees")}
+    if "emp_id" not in columns:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE employees ADD COLUMN emp_id INTEGER"))
+
+    db = SessionLocal()
+    try:
+        repo = EmployeeRepository(db)
+        missing = list(
+            db.scalars(
+                select(Employee)
+                .where(Employee.emp_id.is_(None))
+                .order_by(Employee.created_at)
+            ).all()
+        )
+        if not missing:
+            return
+
+        next_id = repo.next_emp_id()
+        for employee in missing:
+            employee.emp_id = next_id
+            next_id += 1
+        db.commit()
+    finally:
+        db.close()
+
+
 def init_db() -> None:
     from app.models.employee import Employee  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _migrate_emp_id_column()

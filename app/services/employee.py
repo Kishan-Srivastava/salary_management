@@ -16,15 +16,20 @@ class EmployeeService:
     def __init__(self, db: Session) -> None:
         self.repo = EmployeeRepository(db)
 
+    def _require_employee(self, employee) -> EmployeeResponse:
+        if not employee:
+            raise EmployeeNotFoundError("Employee not found")
+        return EmployeeResponse.model_validate(employee)
+
     def create(self, data: EmployeeCreate) -> EmployeeResponse:
         employee = self.repo.create(data)
         return EmployeeResponse.model_validate(employee)
 
     def get(self, employee_id: uuid.UUID) -> EmployeeResponse:
-        employee = self.repo.get_by_id(employee_id)
-        if not employee:
-            raise EmployeeNotFoundError(f"Employee {employee_id} not found")
-        return EmployeeResponse.model_validate(employee)
+        return self._require_employee(self.repo.get_by_id(employee_id))
+
+    def get_by_emp_id(self, emp_id: int) -> EmployeeResponse:
+        return self._require_employee(self.repo.get_by_emp_id(emp_id))
 
     def list(
         self,
@@ -32,6 +37,8 @@ class EmployeeService:
         country: str | None = None,
         job_title: str | None = None,
         name: str | None = None,
+        emp_id: str | None = None,
+        id_partial: str | None = None,
         page: int = 1,
         page_size: int = 50,
     ) -> tuple[list[EmployeeResponse], int]:
@@ -40,6 +47,8 @@ class EmployeeService:
             country=country,
             job_title=job_title,
             name=name,
+            emp_id=emp_id,
+            id_partial=id_partial,
             offset=offset,
             limit=page_size,
         )
@@ -52,8 +61,21 @@ class EmployeeService:
         updated = self.repo.update(employee, data)
         return EmployeeResponse.model_validate(updated)
 
+    def update_by_emp_id(self, emp_id: int, data: EmployeeUpdate) -> EmployeeResponse:
+        employee = self.repo.get_by_emp_id(emp_id)
+        if not employee:
+            raise EmployeeNotFoundError(f"Employee emp_id {emp_id} not found")
+        updated = self.repo.update(employee, data)
+        return EmployeeResponse.model_validate(updated)
+
     def delete(self, employee_id: uuid.UUID) -> None:
         employee = self.repo.get_by_id(employee_id)
         if not employee:
             raise EmployeeNotFoundError(f"Employee {employee_id} not found")
+        self.repo.delete(employee)
+
+    def delete_by_emp_id(self, emp_id: int) -> None:
+        employee = self.repo.get_by_emp_id(emp_id)
+        if not employee:
+            raise EmployeeNotFoundError(f"Employee emp_id {emp_id} not found")
         self.repo.delete(employee)
