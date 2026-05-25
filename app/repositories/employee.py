@@ -1,4 +1,4 @@
-"""Employee repository — Step 2: create only."""
+"""Employee repository."""
 
 import uuid
 
@@ -11,6 +11,9 @@ from app.schemas.employee import EmployeeCreate
 class EmployeeRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
+
+    def get_by_id(self, employee_id: uuid.UUID) -> Employee | None:
+        return self.db.get(Employee, employee_id)
 
     def create(self, data: EmployeeCreate) -> Employee:
         employee = Employee(

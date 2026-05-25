@@ -21,8 +21,8 @@ We build on branch **`development`** one step at a time.
 |------|--------|--------|
 | **0** | Environment: venv, deps, health API, smoke test | **Done** |
 | **1** | Database + `Employee` model | **Done** |
-| **2** | Create employee (TDD) | **Done — review** |
-| 3 | Get employee by id (TDD) | Pending |
+| **2** | Create employee (TDD) | **Done** |
+| **3** | Get employee by id (TDD) | **Done — review** |
 | 4 | List employees (TDD) | Pending |
 | 5 | Filters + pagination (TDD) | Pending |
 | 6 | Update / delete (TDD) | Pending |
@@ -121,10 +121,23 @@ Expected: **5 tests** pass.
 
 ---
 
+## Step 3 — Get employee by id (TDD)
+
+**Goal:** `GET /employees/{id}` returns 200 or 404.
+
+**New:** `tests/test_get_employee.py` + `get_by_id` / `get()` in repo & service.
+
+**Run:** `pytest -v` → **7 tests** pass.
+
+**When satisfied, reply:** `Step 3 approved` — then Step 4 (list employees).
+
+---
+
 ## Approval log
 
 | Step | Approved by you | Commit |
 |------|-----------------|--------|
 | 0 | Yes | `955a0e9` |
 | 1 | Yes | `81dae7c` |
-| 2 | _waiting for your OK_ | _this commit_ |
+| 2 | Yes | `a2a657d` |
+| 3 | _waiting for your OK_ | _this commit_ |

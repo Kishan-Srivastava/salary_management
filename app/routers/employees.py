@@ -1,11 +1,13 @@
-"""Employee routes — Step 2: POST /employees only."""
+"""Employee routes."""
 
-from fastapi import APIRouter, Depends, status
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.employee import EmployeeCreate, EmployeeResponse
-from app.services.employee import EmployeeService
+from app.services.employee import EmployeeNotFoundError, EmployeeService
 
 router = APIRouter()
 
@@ -20,3 +22,14 @@ def create_employee(
     service: EmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponse:
     return service.create(payload)
+
+
+@router.get("/{employee_id}", response_model=EmployeeResponse)
+def get_employee(
+    employee_id: uuid.UUID,
+    service: EmployeeService = Depends(get_employee_service),
+) -> EmployeeResponse:
+    try:
+        return service.get(employee_id)
+    except EmployeeNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
