@@ -2,11 +2,27 @@
 
 import uuid
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.employee import Employee
 from app.schemas.employee import EmployeeCreate
+
+
+def _job_title_filter(term: str):
+    """Partial, case-insensitive match (e.g. 'finance' → 'Financial Analyst')."""
+    cleaned = term.strip()
+    if not cleaned:
+        return None
+
+    patterns = {f"%{cleaned}%"}
+    if len(cleaned) >= 4:
+        # 'finance' also matches words starting with 'financ' (Financial, Finance)
+        patterns.add(f"{cleaned[:-1]}%")
+        patterns.add(f"% {cleaned}%")
+        patterns.add(f"% {cleaned[:-1]}%")
+
+    return or_(*[Employee.job_title.ilike(p) for p in patterns])
 
 
 class EmployeeRepository:
@@ -32,9 +48,10 @@ class EmployeeRepository:
             count_stmt = count_stmt.where(Employee.country == country)
 
         if job_title:
-            pattern = f"%{job_title.strip()}%"
-            stmt = stmt.where(Employee.job_title.ilike(pattern))
-            count_stmt = count_stmt.where(Employee.job_title.ilike(pattern))
+            title_filter = _job_title_filter(job_title)
+            if title_filter is not None:
+                stmt = stmt.where(title_filter)
+                count_stmt = count_stmt.where(title_filter)
 
         total = self.db.scalar(count_stmt) or 0
         rows = self.db.scalars(

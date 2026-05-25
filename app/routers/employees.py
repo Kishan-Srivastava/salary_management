@@ -29,7 +29,7 @@ def list_employees(
     country: Country | None = None,
     job_title: str | None = Query(
         default=None,
-        description="Partial match (case-insensitive), e.g. 'finance' matches 'Financial Analyst'",
+        description="Partial match (case-insensitive). E.g. 'finance' matches 'Financial Analyst' and 'Finance Manager'",
     ),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
