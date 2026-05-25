@@ -2,7 +2,7 @@
 
 Built incrementally on branch **`development`** — one small step at a time with TDD.
 
-## Current step: 6 — Update & delete
+## Current step: 7 — Country salary insights
 
 See **[DEVELOPMENT.md](DEVELOPMENT.md)** for the full roadmap and approval process.
 
@@ -18,11 +18,11 @@ uvicorn app.main:app --reload
 ```
 
 - Health: http://127.0.0.1:8000/health  
-- **18 tests** should pass
-- Full CRUD: `POST`, `GET`, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`
-- Restart API after pull: `uvicorn app.main:app --reload --port 8001`
+- **23 tests** should pass
+- `GET /insights/country` — min / max / avg salary per country
+- Restart API: `uvicorn app.main:app --reload --port 8001`
 
-When Step 6 looks good, say **“Step 6 approved”** to begin Step 7 (salary insights).
+When Step 7 looks good, say **“Step 7 approved”** to begin Step 8 (job-title insights + charts).
 
 ### Branches
 

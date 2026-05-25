@@ -25,8 +25,8 @@ We build on branch **`development`** one step at a time.
 | **3** | Get employee by id (TDD) | **Done** |
 | **4** | List employees (TDD) | **Done** |
 | **5** | Filters + pagination (TDD) | **Done** |
-| **6** | Update / delete (TDD) | **Done — review** |
-| 7 | Country salary insights (TDD) | Pending |
+| **6** | Update / delete (TDD) | **Done** |
+| **7** | Country salary insights (TDD) | **Done — review** |
 | 8 | Job-title insights + extra charts (TDD) | Pending |
 | 9 | Seed script (small batch first) | Pending |
 | 10 | Bulk seed (10k) | Pending |
@@ -172,4 +172,19 @@ Expected: **5 tests** pass.
 | 3 | Yes | `fa9c216` |
 | 4 | Yes | `904569a` |
 | 5 | Yes | `0627964` |
-| 6 | _waiting for your OK_ | _this commit_ |
+| 6 | Yes | `3a856f3` |
+| 7 | _waiting for your OK_ | _this commit_ |
+
+---
+
+## Step 7 — Country salary insights (TDD)
+
+**Goal:** `GET /insights/country` — min, max, avg salary per country (SQL aggregation).
+
+**New files:** `app/schemas/insights.py`, `repositories/insights.py`, `services/insights.py`, `routers/insights.py`, `tests/test_insights_country.py`
+
+**Run:** `pytest -v` → **23 tests** pass.
+
+**Try:** `GET http://127.0.0.1:8001/insights/country`
+
+**When satisfied, reply:** `Step 7 approved` — then Step 8 (job-title insights + charts).
